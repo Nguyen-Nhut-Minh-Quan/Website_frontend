@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <title>Multi-Line Server Dashboard</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Reset and base styles */
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+            overflow: hidden;
+        }
+
+        .virtual-server-card {
+            background: linear-gradient(135deg, #eef2f3, #dfe9f3);
+            border: none;
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease;
+        }
+
+        .virtual-server-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* Main content container */
+        .container-p-y {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            overflow: hidden;
+            padding: 0;
+        }
+
+        /* Allow rows to grow and scroll if needed */
+        .row {
+            flex: 1 1 auto;
+            overflow-y: auto;
+            margin: 0;
+            padding: 12px;
+        }
+
+        /* Responsive chart container */
+        .chart-container {
+            flex: 0 0 auto;
+            margin-bottom: 12px;
+        }
+
+        /* Virtual Server Grid */
+        #VirtualServersInServersContainer {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            grid-auto-rows: minmax(100px, auto);
+            gap: 10px;
+            padding: 10px;
+            overflow-y: auto;
+            flex: 0 0 30%;
+            height: 30%;
+            background: #f9fafb;
+            border-top: 1px solid #ddd;
+        }
+
+        #Tank01-ServerA_TemperatureLineChart {
+            height: 150px !important;
+            min-height: 0 !important;
+            padding: 0 !important;
+            margin: 0 !important;
+
+        }
+
+        .card-body {
+            padding-top: 0rem !important;
+        }
+
+        /* Card styling */
+        .card {
+            background-color: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            padding: 12px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container-xxl container-p-y" id="Tank01-ServerA-menu">
+        <div class="row m-0 p-1 g-2">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Temperature Chart</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="Tank01-ServerA_TemperatureLineChart" style="height:200px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">Overview</h5>
+                    </div>
+                    <div class="card-body p-2">
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item py-1"><strong>RAM:</strong> 4.5 GB</li>
+                            <li class="list-group-item py-1"><strong>CPU Temp:</strong> 57°C</li>
+                            <li class="list-group-item py-1"><strong>CPU Usage:</strong> 65%</li>
+                            <li class="list-group-item py-1"><strong>Disk:</strong> 350 GB</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">RAM Usage</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="ServerA_RamUsageLineChart" style="height:100px;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">CPU Usage</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="ServerA_CpUUsageLineChart" style="height:100px;"></div>
+                        <div id="ServerA_text_CpuUsage" class="mt-2">Total: 65%</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="VirtualServersInServersContainer"></div>
+    </div>
+
+    <script>
+        // Temperature multi-series chart
+        new ApexCharts(document.querySelector("#Tank01-ServerA_TemperatureLineChart"), {
+            chart: { type: 'line', height: 150, toolbar: { show: false } },
+            series: [
+                { name: 'CPU Temp', data: [45, 47, 49, 50, 48, 52, 55] },
+                { name: 'GPU Temp', data: [45, 47, 49, 50, 48, 52, 55] }
+            ],
+            xaxis: { categories: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50', '11:00'] },
+            tooltip: { shared: true, y: { formatter: val => val + '°C' } },
+            legend: {
+                show: true,
+                position: 'top',
+                labels: {
+                    colors: '#e3c0c0ff',   // ← Make legend text white
+                    useSeriesColors: false // ← Prevent overriding by series color
+                },
+            },
+        }).render();
+
+        // RAM chart
+        new ApexCharts(document.querySelector("#ServerA_RamUsageLineChart"), {
+            chart: { type: 'line', height: 100, sparkline: { enabled: true } },
+            series: [
+                { name: 'Used', data: [4.2, 4.3, 4.4, 4.5, 4.4, 4.6, 4.7] },
+                { name: 'Free', data: [2.8, 2.7, 2.6, 2.5, 2.6, 2.4, 2.3] }
+            ],
+            xaxis: { categories: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50', '11:00'] },
+            tooltip: { shared: true, y: { formatter: val => val + ' GB' } },
+            legend: {
+                show: true,
+                position: 'top',
+                labels: {
+                    colors: '#e3c0c0ff',   // ← Make legend text white
+                    useSeriesColors: false // ← Prevent overriding by series color
+                },
+            },
+        }).render();
+
+        // CPU chart
+        new ApexCharts(document.querySelector("#ServerA_CpUUsageLineChart"), {
+            chart: { type: 'line', height: 100, sparkline: { enabled: true } },
+            series: [
+                { name: 'Process A', data: [20, 22, 21, 23, 25, 27, 26] },
+                { name: 'Process B', data: [38, 39, 40, 42, 41, 39, 38] }
+            ],
+            xaxis: { categories: ['10:00', '10:10', '10:20', '10:30', '10:40', '10:50', '11:00'] },
+            tooltip: { shared: true, y: { formatter: val => val + '%' } }
+        }).render();
+
+        // Virtual server cards (18 total)
+        function renderServerCards(count) {
+            const container = document.getElementById("VirtualServersInServersContainer");
+            container.innerHTML = "";
+            for (let i = 0; i < count; i++) {
+                const card = document.createElement("div");
+                card.classList.add("virtual-server-card");
+                card.innerHTML = `
+          <h6 class="mb-1 text-truncate">Server ${i + 1}</h6>
+          <ul class="list-unstyled mb-0">
+            <li><strong>CPU:</strong> ${300 + i * 15}GB / 1200GB</li>
+            <li><strong>RAM:</strong> ${4 + (i % 4)} GB</li>
+            <li><strong>Disk:</strong> ${250 + i * 8} GB</li>
+          </ul>
+        `;
+                container.appendChild(card);
+            }
+        }
+
+        renderServerCards(18);
+
+    </script>
+</body>
+
+</html>

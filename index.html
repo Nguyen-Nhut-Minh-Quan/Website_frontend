@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en" class="layout-navbar-fixed layout-menu-fixed layout-compact" dir="ltr" data-skin="default"
+  data- /assets-path=" /assets/" data-template="vertical-menu-template-starter" data-bs-theme="dark">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0" />
+
+  <title>Dashboard - Tank & Server Monitoring</title>
+
+  <meta name="description" content="Tree-like navigation for tank and server monitoring" />
+
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&ampdisplay=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href=" /assets/vendor/fonts/iconify-icons.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+
+
+  <link rel="stylesheet" href=" /assets/vendor/libs/node-waves/node-waves.css" />
+  <link rel="stylesheet" href=" /assets/vendor/libs/pickr/pickr-themes.css" />
+  <link rel="stylesheet" href=" /assets/vendor/css/core.css" />
+  <link rel="stylesheet" href=" /assets/css/demo.css" />
+  <link rel="stylesheet" href=" /assets/vendor/libs/apex-charts/apex-charts.css" />
+  <link rel="stylesheet" href=" /assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
+  <script src=" /assets/vendor/js/helpers.js"></script>
+  <!--<script src=" /assets/vendor/js/template-customizer.js"></script>-->
+  <script src=" /assets/js/config.js"></script>
+  <link rel="stylesheet" href=" /assets/vendor/js/template-customizer.js" />
+  <style>
+    /* Optional: Custom styles for the circular menu button */
+    /* --- Overall Page Layout Adjustments (Essential for no page scrolling) --- */
+    /* Reduce padding around the main content area */
+    /* --- Overall Page Layout Adjustments --- */
+    /* Ensure the main container grows and takes available height */
+    .container-xxl.flex-grow-1.container-p-y {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      /* Use full viewport height */
+      padding-top: 0 !important;
+      padding-bottom: 0.5 !important;
+      padding-right: 0 !important;
+      overflow: hidden;
+      /* Prevent body scroll if content fits */
+    }
+
+    /* Adjust card component paddings to be super tight */
+    .card-header {
+      padding-top: 0.25rem !important;
+      /* Reduced */
+      padding-bottom: 0.25rem !important;
+      /* Reduced */
+    }
+
+    .card-body {
+      padding-bottom: 0rem;
+      padding-right: 0rem;
+      padding-left: 0rem;
+      padding-top: 0rem;
+    }
+
+    .card-body>div[id$="LineChart"]>.apexcharts-canvas {
+      display: block;
+      margin: 0.25rem !important;
+      padding: 0.25rem !important;
+    }
+
+    .card-body>div[id$="LineChart"] svg {
+      vertical-align: top !important;
+      /* Removes baseline alignment gap */
+    }
+
+    /* Adjust list items inside cards */
+    .list-group-item.d-flex.justify-content-between.align-items-center {
+      padding: 0.1rem 0.5rem !important;
+      /* Very tight padding for list items */
+    }
+
+    /* --- Server Card Grid (Crucial) --- */
+    #VirtualServersInServersContainer.server-grid {
+      display: grid;
+      /* This is the key: auto-fit creates as many columns as possible.
+       minmax(80px, 1fr) ensures each card is at least 80px wide but grows to fill space.
+       Adjust 80px based on content readability. */
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+      /* Adjusted minmax for more columns */
+      gap: 0.5rem;
+      /* Small gap between cards for visual separation */
+      padding: 0.5rem;
+      /* Some padding around the entire grid of cards */
+      flex: 1 1 auto;
+      /* Allow the grid container to grow and shrink, taking available vertical space */
+      overflow-y: auto;
+      /* Allow vertical scrolling ONLY if cards exceed container height */
+      box-sizing: border-box;
+      align-content: start;
+      /* Align rows to the start, not stretched */
+    }
+
+    .virtual-server-card {
+      background-color: #2f2f4f;
+      border-radius: 0.5rem;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      height: auto;
+      /* Let content dictate height, no fixed height */
+      max-height: 110px;
+      /* Set a reasonable max-height if content is small, but allow it to shrink */
+      min-width: 90px;
+      /* Match minmax from grid-template-columns */
+      /* Remove max-width so it can expand to 1fr */
+      font-size: 0.7rem;
+      /* Slightly smaller font for more content on card */
+      display: flex;
+      /* Use flexbox internally for vertical alignment */
+      flex-direction: column;
+      justify-content: space-between;
+      /* Space out header and list */
+      padding: 0.25rem !important;
+      /* Internal padding for the card */
+    }
+
+    .virtual-server-card h6 {
+      margin-bottom: 0.1rem !important;
+      /* Reduce margin below title */
+      font-size: 0.8rem;
+      /* Smaller title font */
+    }
+
+    .virtual-server-card ul {
+      margin-bottom: 0 !important;
+      /* No margin below the list */
+    }
+
+    .virtual-server-card ul li {
+      line-height: 1.2;
+      /* Tighter line spacing */
+    }
+
+    /* Ensure chart containers are also height-optimized */
+
+    .card-body>div[id$="LineChart"] {
+      max-height: 265px !important;
+      /* Fixed height for charts as per your code */
+      display: flex;
+      /* To center loading text */
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Reduce margins for Bootstrap columns containing cards */
+    .col-lg-6.col-md-6.mb-4,
+    .col-lg-6.col-md-12.mb-4 {
+      margin-bottom: 0.5rem !important;
+      /* Reduced space between rows of chart cards */
+      padding: 0.25rem !important;
+      /* Reduce padding for these columns */
+    }
+
+    #serversInTankContainer {
+      display: grid;
+      /* This is the key: auto-fit creates as many columns as possible.
+       minmax(110px, 1fr) ensures each card is at least 110px wide but grows to fill space.
+       Adjust 110px based on how small your card content can be before breaking readability. */
+      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+      gap: 0.5rem;
+      /* Small gap between cards for visual separation */
+      padding: 0.5rem !important;
+      /* Padding around the entire grid of cards */
+      flex: 1 1 auto;
+      /* **Crucial:** Allows this container to grow and shrink vertically,
+                       taking remaining space within its flex parent (the main container) */
+      overflow-y: auto;
+      /* Allow vertical scrolling ONLY if cards exceed container height */
+      box-sizing: border-box;
+      align-content: start;
+      /* Align rows to the start, not stretched, keeps them compact */
+      margin-top: 0.5rem !important;
+      /* Small margin above the grid if needed */
+    }
+
+    /* Style for individual physical server cards */
+    .physical-server-card {
+      max-width: unset !important;
+      /* Remove any max-width to allow expansion to 1fr */
+      min-width: 100px;
+      /* Ensure a minimum width for content readability */
+      height: auto !important;
+      /* Let content dictate height, no fixed height */
+      min-height: 120px;
+      /* Set a reasonable min-height to maintain structure */
+      background-color: #2f2f4f;
+      /* Dark background */
+      border-radius: 0.5rem;
+      box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
+      overflow: hidden;
+      /* Hide any overflowing content if card shrinks too much */
+      font-size: 0.75rem;
+      /* Slightly smaller font for more content on card */
+      display: flex;
+      /* Use flexbox internally for vertical alignment */
+      flex-direction: column;
+      justify-content: space-between;
+      /* Space out header and list */
+      padding: 0.25rem !important;
+      /* Internal padding for the card */
+    }
+
+    .physical-server-card .card-header {
+      padding-bottom: 0.1rem !important;
+      /* Reduce padding between header and body */
+    }
+
+    .physical-server-card .card-body {
+      padding-left: 0.5rem !important;
+      padding-right: 0rem p !important;
+      padding-top: 0.1rem !important;
+      /* Reduce padding between header and body */
+      flex-grow: 1;
+      /* Allow the body to grow and take available space */
+    }
+
+    .physical-server-card h6 {
+      margin-bottom: 0 !important;
+      /* No margin below title */
+      font-size: 0.8rem;
+      /* Smaller title font */
+    }
+
+    .physical-server-card ul {
+      margin-bottom: 0 !important;
+      /* No margin below the list */
+      padding-left: 0 !important;
+      /* Remove default ul padding */
+      list-style: none;
+      /* Remove bullet points */
+    }
+
+    .physical-server-card ul li {
+      line-height: 1.2;
+      /* Tighter line spacing */
+      white-space: nowrap;
+      /* Prevent text from wrapping within list item */
+      overflow: hidden;
+      /* Hide overflow if nowrap causes issues */
+      text-overflow: ellipsis;
+      /* Add ellipsis for overflowing text */
+    }
+
+    /* Ensure the text-usage span inside list items is styled correctly */
+    .text-usage {
+      font-weight: bold;
+      /* Make the usage numbers stand out */
+    }
+  </style>
+</head>
+
+<body>
+  <div class="layout-wrapper layout-content-navbar">
+    <div class="layout-container">
+      <aside id="layout-menu" class="layout-menu menu-vertical menu">
+        <div class="app-brand demo">
+          <a href="javascript:void(0);" class="app-brand-link">
+            <span class="app-brand-logo demo">
+              <img src="../static/Logo.webp" width="50" height="22" style="display: block;">
+            </span>
+
+          </a>
+
+          <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large ms-auto">
+            <i class="icon-base ti menu-toggle-icon d-none d-xl-block"></i>
+            <i class="icon-base ti tabler-x d-block d-xl-none"></i>
+          </a>
+        </div>
+
+        <div class="menu-inner-shadow"></div>
+
+        <ul class="menu-inner py-1" id="side-bar"></ul>
+      </aside>
+      <div class="menu-mobile-toggler d-xl-none rounded-1">
+        <a href="javascript:void(0);" class="layout-menu-toggle menu-link text-large text-bg-secondary p-2 rounded-1">
+          <i class="ti ti-menu icon-base"></i>
+        </a>
+      </div>
+      <div class="layout-page">
+        <nav
+          class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
+          id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+              <i class="icon-base ti tabler-menu-2 icon-md"></i>
+            </a>
+          </div>
+          <span style="margin-right: 50px "><strong>START TIME :</strong></span>
+          <div id="start" style="margin-right: 50px ">
+            <input type="date" style="margin-right: 50px " id="startdate">
+            <input type="time" style="margin-right: 50px " id="starttime">
+          </div>
+          <span style="margin-right: 50px "><strong>END TIME:</strong> </span>
+          <div id="end" style="margin-right: 50px ">
+            <input type="date" style="margin-right: 50px " id="enddate">
+            <input type="time" style="margin-right: 50px " id="endtime">
+          </div>
+          <span style="margin-right: 50px"><strong>INTERVAL:</strong></span>
+          <div id="interval" style="margin-right: 50px">
+            <select id="intervalSelect" style="padding: 4px 8px">
+              <option value="30">30 seconds</option>
+              <option value="60">1 minute</option>
+              <option value="300">5 minutes</option>
+              <option value="900">15 minutes</option>
+              <option value="1800">30 minutes</option>
+              <option value="3600">1 hour</option>
+            </select>
+          </div>
+        </nav>
+
+        <div class="content-wrapper">'
+          <footer class="content-footer footer bg-footer-theme">
+            <div class="container-xxl">
+              <div
+                class="footer-container d-flex align-items-center justify-content-between py-4 flex-md-row flex-column">
+                <div class="text-body">
+
+                  <script>
+                    document.write(new Date().getFullYear());
+                  </script>
+                  , made with ❤️ by <a href="https://pixinvent.com" target="_blank" class="footer-link">Pixinvent</a>
+                </div>
+                <div class="d-none d-lg-inline-block">
+                  <a href="https://demos.pixinvent.com/vuexy-html-admin-template/documentation/" target="_blank"
+                    class="footer-link me-4">Documentation</a>
+                </div>
+              </div>
+            </div>
+          </footer>
+          <div class="content-backdrop fade"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="layout-overlay layout-menu-toggle"></div>
+
+    <div class="drag-target"></div>
+  </div>
+  <script src=" /assets/vendor/libs/jquery/jquery.js"></script>
+  <script src=" /assets/vendor/libs/popper/popper.js"></script>
+  <script src=" /assets/vendor/js/bootstrap.js"></script>
+  <script src=" /assets/vendor/libs/node-waves/node-waves.js"></script>
+  <script src=" /assets/vendor/libs/@algolia/autocomplete-js.js"></script>
+  <script src=" /assets/vendor/libs/pickr/pickr.js"></script>
+  <script src=" /assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src=" /assets/vendor/libs/hammer/hammer.js"></script>
+  <script src=" /assets/vendor/js/menu.js"></script>
+  <script src=" /assets/vendor/libs/apex-charts/apexcharts.js"></script>
+  <script src=" /assets/js/main.js"></script>
+  <script src=" /assets/js/custom-apps.js"></script>
+  <script src=" /assets/js/custom-virtual-server.js"></script>
+  <script src=" /assets/js/custom-physical-server.js"></script>
+  <script src=" /assets/js/custom-sidebar.js"></script>
+  <script src=" /assets/js/custom-tank.js"></script>
+</body>
+
+</html>
