@@ -1,7 +1,6 @@
 $(async function () {
   await loadTankMenu(CurrentTank);
   await RunSideBar();
-  console.log("severlist", serverList);
   // Centralized click listener for menu items (the 'box' part)
   $('body').on('click', '.menu-link div[data-type]', async function (e) {
     e.stopPropagation(); // Prevent the click from bubbling up and triggering the menu-toggle for parent <a>

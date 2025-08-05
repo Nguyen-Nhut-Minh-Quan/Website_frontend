@@ -396,7 +396,6 @@ async function populateServersInTankCards(tank) {
     z['SERVER_IP'] = servers['SERVER_IP'];
     CardValues.push(z);
   }
-  console.log(CardValues);
   for (const server of CardValues) {
     const disk_used = await formatSize(server.Used_Disk);
     const disk_total = await formatSize(server.Total_Disk);

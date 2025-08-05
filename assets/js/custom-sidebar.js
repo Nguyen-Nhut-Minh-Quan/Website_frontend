@@ -22,7 +22,6 @@ async function RunSideBar() {
 }
 async function populateServerSidebar(tank) {
     await fetchServerList(tank);
-    console.log(serverList);
     let SelectedTank = document.getElementById(`submenu_tank-${tank}`);
     if (!SelectedTank) {
         throw new Error("Cannot find html id of the tank");

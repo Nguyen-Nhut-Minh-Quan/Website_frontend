@@ -1,7 +1,7 @@
 let diskCharts = {}; // Stores ApexCharts instances
 let diskUpdateInterval; // Stores the interval ID
-let server = null; // Store currently active server ID
-let virtual = null; // Store currently active virtual server ID
+let CurrentPhysicalServer = null; // Store currently active server ID
+let CurrentVirtualServer = null; // Store currently active virtual server ID
 let TimePicked = null;
 let allVirtualServers = [];
 let DayStart = getToday();
@@ -134,7 +134,6 @@ async function fetchVirtualServerList(tank, physical) {
     for (const s of data) {
       allVirtualServers.push(s);
     }
-    console.log(allVirtualServers);
     return;
   } catch (error) {
     console.error(`Error fetching server details for ${server}:`, error);

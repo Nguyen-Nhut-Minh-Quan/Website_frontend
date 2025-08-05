@@ -1,9 +1,6 @@
 let serverList = [];
 let physicalserverchart = {};
 let physicalserverUpdateInterval = null;
-async function fetchServerList() {
-  await fetchServerList(CurrentTank);
-}
 async function fetchPhysicalServerPickedOverview(tank, server) {
   try {
     const response = await fetch(`${API_BASE_URL}/physical-server/overview/${Tank_Location}/${tank}/${server}`);
@@ -13,7 +10,7 @@ async function fetchPhysicalServerPickedOverview(tank, server) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`fetching error for timePicked part`, error);
+    console.error(`fetching error for Overview for tank ${tank} server ${server}`, error);
     return null; // Return null on error for robust handling
   }
 }
@@ -35,7 +32,7 @@ async function fetchRamPhysicalServer(tank, server) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching CPU details for Virtual Server :${CurrentVirtualServer} of ${CurrentPhysicalServer}:`, error);
+    console.error(`Error fetching Ram details for Virtual Server of tank ${tank} server ${server}:`, error);
     return null; // Return null on error for robust handling
   }
 }
@@ -57,7 +54,7 @@ async function fetchCpuPhysicalServer(tank, server) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching CPU details for Virtual Server :${CurrentVirtualServer} of ${CurrentPhysicalServer}:`, error);
+    console.error(`Error fetching CPU details for tank ${tank} server ${server}:`, error);
     return null; // Return null on error for robust handling
   }
 }
@@ -70,7 +67,7 @@ async function fetchDiskPhysicalServer(tank, server) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching Disk of tank ${CurrentTank} server ${CurrentPhysicalServer}`, error);
+    console.error(`Error fetching Disk of tank ${tank} server ${server}`, error);
     return null; // Return null on error for robust handling
   }
 }
@@ -86,7 +83,7 @@ async function fetchServerList(tank) {
       serverList.push(server);
     });
   } catch (error) {
-    console.error(`Error fetching server List of ${CurrentTank}`, error);
+    console.error(`Error fetching server List of ${tank}`, error);
     return null; // Return null on error for robust handling
   }
 }
@@ -99,7 +96,7 @@ async function fetchServerListOuter(tank) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching server List of ${CurrentTank}`, error);
+    console.error(`Error fetching server List of ${tank}`, error);
     return null; // Return null on error for robust handling
   }
 }
@@ -122,25 +119,25 @@ async function fetchPhysicaltemp(tank, server) {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching CPU details for Virtual Server :${CurrentVirtualServer} of ${CurrentPhysicalServer}:`, error);
+    console.error(`Error fetching Physical Temp for tank ${tank} of ${server}:`, error);
     return null; // Return null on error for robust handling
   }
 }
 
-async function loadServerMenu(tank, serverId) {
+async function loadServerMenu(tank, server) {
   resetTime();
   if (physicalserverUpdateInterval) {
     clearInterval(physicalserverUpdateInterval);
     physicalserverUpdateInterval = null;
   }
   const content = `
-  <div class="container-xxl flex-grow-1 container-p-y"  style="display: flex; flex-direction: column; height: 100vh; padding: 0;" id="${tank}-${serverId}-menu">
+  <div class="container-xxl flex-grow-1 container-p-y"  style="display: flex; flex-direction: column; height: 100vh; padding: 0;" id="${tank}-${server}-menu">
     <div class="top-section" style="flex: 0 0 auto;">
       <div class="row m-0 p-0 g-0">
         <div class="col-lg-8 col-md-12 mb-4" style = "margin-block-end:0 !important;">
           <div class="card h-100">
             <div class="card-body">
-              <div id="${tank}_${serverId}_TemperatureLineChart" style = "height:250px" >
+              <div id="${tank}_${server}_TemperatureLineChart" style = "height:250px" >
                 <div class="alert alert-info text-center" role="alert">Loading temperature line chart...</div>
               </div>
             </div>
@@ -151,23 +148,23 @@ async function loadServerMenu(tank, serverId) {
             <div class="card-body">
               <ul class="list-group list-group-flush">
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <strong>IP:</strong> <span id="${tank}_${serverId}_stats_IP"
+                  <strong>IP:</strong> <span id="${tank}_${server}_stats_IP"
                     class="badge bg-label-primary">N/A</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <strong>Total RAM Use:</strong> <span id="${tank}_${serverId}_stats_RamUsage"
+                  <strong>Total RAM Use:</strong> <span id="${tank}_${server}_stats_RamUsage"
                     class="badge bg-label-primary">N/A</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <strong>CPU Temperature:</strong> <span id="${tank}_${serverId}_stats_temp"
+                  <strong>CPU Temperature:</strong> <span id="${tank}_${server}_stats_temp"
                     class="badge bg-label-info">N/A</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <strong>Total CPU Usage:</strong> <span id="${tank}_${serverId}_stats_CPUUsage"
+                  <strong>Total CPU Usage:</strong> <span id="${tank}_${server}_stats_CPUUsage"
                     class="badge bg-label-success">N/A</span>
                 </li>
                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                  <strong>Total Disk Usage:</strong> <span id="${tank}_${serverId}_stats_DiskUsage"
+                  <strong>Total Disk Usage:</strong> <span id="${tank}_${server}_stats_DiskUsage"
                     class="badge bg-label-success">N/A</span>
                 </li>
               </ul>
@@ -177,7 +174,7 @@ async function loadServerMenu(tank, serverId) {
         <div class="col-lg-4 col-md-12 mb-4" style="margin-block-end:0 !important; padding :0 !important; max-height:175px">
           <div class="card h-100">
             <div class="card-body">
-              <div id="${tank}-${serverId}_RamUsageLineChart">
+              <div id="${tank}-${server}_RamUsageLineChart">
                 <div class="alert alert-info text-center" role="alert">Loading Free RAM line chart...</div>
               </div>
             </div>
@@ -186,10 +183,10 @@ async function loadServerMenu(tank, serverId) {
         <div class="col-lg-4 col-md-12 mb-4" style="margin-block-end:0 !important; padding :0 !important; max-height :175px!important;">
           <div class="card h-100">
             <div class="card-header">
-              <h5 class="card-title mb-0" id = "${tank}_${serverId}_title_disk_text">Total Disk Used</h5>
+              <h5 class="card-title mb-0" id = "${tank}_${server}_title_disk_text">Total Disk Used</h5>
             </div>
             <div class="card-body">
-              <div id="${tank}-${serverId}_DiskUsageBarChart" >
+              <div id="${tank}-${server}_DiskUsageBarChart" >
                 <div class="alert alert-info text-center" role="alert">Loading Disk Usage line chart...</div>
               </div>
             </div>
@@ -198,7 +195,7 @@ async function loadServerMenu(tank, serverId) {
         <div class="col-lg-4 col-md-12 mb-4" style="margin-block-end:0 !important; padding :0 !important;">
           <div class="card h-100">
             <div class="card-body">
-              <div id="${tank}-${serverId}_CpUUsageLineChart" style="max-height : 175px!important;margin-block-end:0 !important; margin-bottom : 0 !important; padding : 0!important">
+              <div id="${tank}-${server}_CpUUsageLineChart" style="max-height : 175px!important;margin-block-end:0 !important; margin-bottom : 0 !important; padding : 0!important">
                 <div class="alert alert-info text-center" role="alert">Loading CPU Usage Line Chart...</div>
               </div>
             </div>
@@ -207,36 +204,44 @@ async function loadServerMenu(tank, serverId) {
       </div>
     </div>
     <div class="scrollable-grid-wrapper" style="flex: 1 1 auto; overflow-y: auto; min-height: 0;">
-      <div id="VirtualServersInServersContainer" class="server-grid row g-0"  style="flex: 1 1 auto; overflow-y: auto; padding:0!important;"></div>
+      <div id="VirtualServersInServersContainer" class="server-grid row g-0"</div>
     </div>
   </div>
     `;
-  // if (physicalserverchart[`${tank}-${serverId}_TemperatureLineChart`]) {
-  //   physicalserverchart[`${tank}-${serverId}_TemperatureLineChart`].destroy();
-  //   delete physicalserverchart[`${tank}-${serverId}_TemperatureLineChart`];
+  // if (physicalserverchart[`${tank}-${server}_TemperatureLineChart`]) {
+  //   physicalserverchart[`${tank}-${server}_TemperatureLineChart`].destroy();
+  //   delete physicalserverchart[`${tank}-${server}_TemperatureLineChart`];
   // }
   await $('.content-wrapper').html(content);
-  await resetChart(tank, serverId);
-  await fetchVirtualServerList(tank, serverId);
-
+  await resetChart(tank, server);
+  await fetchVirtualServerList(tank, server);
+  await updateTime();
+  await updateServerTemp(tank, server);
+  await updateServerDisk(tank, server);
+  await updateServerRam(tank, server);
+  await updateServerCpu(tank, server);
+  await updateOverviewPhysicalServer(tank, server);
+  await renderServerCards(tank, server);
+  await updateServersCards();
   physicalserverUpdateInterval = setInterval(async () => {
     if (CurrentPhysicalServer) {
       await updateTime();
-      await updateServerTemp(tank, serverId);
-      await updateServerDisk(tank, serverId);
-      await updateServerRam(tank, serverId);
-      await updateServerCpu(tank, serverId);
-      await updateOverviewPhysicalServer(tank, serverId);
-      await renderServerCards(allVirtualServers.length);
+      await updateServerTemp(tank, server);
+      await updateServerDisk(tank, server);
+      await updateServerRam(tank, server);
+      await updateServerCpu(tank, server);
+      await updateOverviewPhysicalServer(tank, server);
+      await renderServerCards(tank, server);
+      await updateServersCards();
     }
-  }, 1000);
+  }, 30000);
   // THIS IS THE CORRECT PLACE for virtual server cards
 }
-async function updateServerCpu(tank, serverId) {
-  //const TextElem = document.getElementById(`${tank}_${serverId}_title_disk_text`);
-  const LineChartId = `${tank}-${serverId}_CpUUsageLineChart`;
+async function updateServerCpu(tank, server) {
+  //const TextElem = document.getElementById(`${tank}_${server}_title_disk_text`);
+  const LineChartId = `${tank}-${server}_CpUUsageLineChart`;
   const Chart = document.getElementById(LineChartId);
-  const RawCpuData = await fetchCpuPhysicalServer(tank, serverId);
+  const RawCpuData = await fetchCpuPhysicalServer(tank, server);
   const filteredCpuData = await filterByInterval(RawCpuData, Timegap);
   try {
     const numCores = filteredCpuData[0]["logical_cores"];
@@ -244,17 +249,13 @@ async function updateServerCpu(tank, serverId) {
     let RenderCategories = [];
     for (const a of filteredCpuData) {
       dataSeries.push(a["cpu_percent_used"]);
-      // console.log("Value push", a["cpu_percent_used"]);
       const TimeUST = a[`Timestamp`];
       const dateUST = new Date(TimeUST);
       const time = dateUST.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
       const date = dateUST.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
       RenderCategories.push(`${date} ${time}`);
     }
-    // console.log(dataSeries);
-    // console.log(RenderCategories);
     let RenderSeries = [{ name: "CPU_USAGE", data: dataSeries }];
-    // console.log(RenderSeries);
     const commonOptions = {
       series: RenderSeries,
       chart: {
@@ -345,15 +346,15 @@ async function updateServerCpu(tank, serverId) {
 
   }
 }
-async function updateServerDisk(tank, serverId) {
-  const TextElem = document.getElementById(`${tank}_${serverId}_title_disk_text`);
-  const chartId = `${tank}-${serverId}_DiskUsageBarChart`;
+async function updateServerDisk(tank, server) {
+  const TextElem = document.getElementById(`${tank}_${server}_title_disk_text`);
+  const chartId = `${tank}-${server}_DiskUsageBarChart`;
   const ChartElem = document.getElementById(chartId);
   // if (physicalserverchart[chartId]) {
   //   physicalserverchart[chartId].destroy();
   //   delete physicalserverchart[chartId];
   // }
-  const LatestData = await fetchDiskPhysicalServer(tank, serverId);
+  const LatestData = await fetchDiskPhysicalServer(tank, server);
   const percentUsed = parseFloat(LatestData["percent_used"]);
   const percentAvail = 100.0 - percentUsed;
   const SeriesRender = [{ name: "Used", data: [percentUsed] }, { name: "Available", data: [percentAvail] }];
@@ -426,12 +427,12 @@ async function updateServerDisk(tank, serverId) {
   }
   TextElem.innerHTML = `${UsedText}/${TotalText}`;
 }
-async function updateServerRam(tank, serverId) {
-  const LineChartId = `${tank}-${serverId}_RamUsageLineChart`;
+async function updateServerRam(tank, server) {
+  const LineChartId = `${tank}-${server}_RamUsageLineChart`;
   const Chart = document.getElementById(LineChartId);
-  const RawRamData = await fetchRamPhysicalServer(tank, serverId);
+  const RawRamData = await fetchRamPhysicalServer(tank, server);
   const FilterRamData = await filterByInterval(RawRamData, Timegap);
-  //const RamText = document.getElementById(`${tank}_${serverId}_title_ram_text`);
+  //const RamText = document.getElementById(`${tank}_${server}_title_ram_text`);
   let dataSeries = [];
   let RenderCategories = [];
   for (const a of FilterRamData) {
@@ -454,30 +455,6 @@ async function updateServerRam(tank, serverId) {
         enabled: true, easing: 'linear',
         dynamicAnimation: { speed: 500 }
       },
-      // sparkline: {
-      //   enabled: true
-      // },
-      // --- NEW: Add dataPointSelection event listener ---
-      events: {
-        dataPointSelection: function (event, chartContext, config) {
-          // Check if a valid data point was clicked
-          //console.log(`hahahafaseafasfesfaa`);
-
-          if (config.dataPointIndex !== undefined && config.dataPointIndex !== -1) {
-            const clickedDataPoint = FilterRamData[config.dataPointIndex];
-            //debugger;
-            if (clickedDataPoint && clickedDataPoint.Timestamp) {
-              if (TimePicked !== clickedDataPoint.Timestamp) {
-                TimePicked = clickedDataPoint.Timestamp;
-              }
-            }
-            else {
-              console.log(`Please pick a new Point`);
-            }
-          }
-        }
-      }
-      // --- END NEW ---
     },
     markers: {
       size: 0.5
@@ -548,31 +525,30 @@ async function resetChart(tank, server) {
     delete physicalserverchart[`${tank}-${server}_CpUUsageLineChart`];
   }
 }
-async function updateOverviewPhysicalServer(tank, serverId) {
-  const iptext = document.getElementById(`${tank}_${serverId}_stats_IP`);
-  const ramtext = document.getElementById(`${tank}_${serverId}_stats_RamUsage`);
-  const temptext = document.getElementById(`${tank}_${serverId}_stats_temp`);
-  const cputext = document.getElementById(`${tank}_${serverId}_stats_CPUUsage`);
-  const disktext = document.getElementById(`${tank}_${serverId}_stats_DiskUsage`);
-  const totalstats = await fetchPhysicalServerPickedOverview(tank, serverId);
-  console.log(`stats`, totalstats);
+async function updateOverviewPhysicalServer(tank, server) {
+  const iptext = document.getElementById(`${tank}_${server}_stats_IP`);
+  const ramtext = document.getElementById(`${tank}_${server}_stats_RamUsage`);
+  const temptext = document.getElementById(`${tank}_${server}_stats_temp`);
+  const cputext = document.getElementById(`${tank}_${server}_stats_CPUUsage`);
+  const disktext = document.getElementById(`${tank}_${server}_stats_DiskUsage`);
+  const totalstats = await fetchPhysicalServerPickedOverview(tank, server);
   iptext.innerHTML = totalstats["SERVER_IP"];
-  temptext.innerHTML = `${totalstats["temp"]}°C`;
-  await updateColordynamic(temptext, totalstats["temp"]);
+  temptext.innerHTML = `${totalstats["temp"].toFixed(2)}°C`;
+  updateColordynamic(temptext, totalstats["temp"]);
   cputext.innerHTML = totalstats["cpu_used"];
-  await updateColordynamic(cputext, totalstats["cpu_used"]);
+  updateColordynamic(cputext, totalstats["cpu_used"]);
   usedramfiltered = await formatSize(totalstats["used_ram"]);
   totalramfiltered = await formatSize(totalstats["total_ram"]);
   ramtext.innerHTML = `${usedramfiltered}/${totalramfiltered}`;
   ram_percent = ((totalstats["used_ram"] * 1.0) / (totalstats["total_ram"] * 1.0)) * 100.0;
-  await updateColordynamic(ramtext, ram_percent);
+  updateColordynamic(ramtext, ram_percent);
   used_disk = await formatSize(totalstats["used_disk"]);
   total_disk = await formatSize(totalstats["total_disk"]);
   disktext.innerHTML = `${used_disk}/${total_disk}`;
   disk_percent = (totalstats["used_disk"] / (totalstats["total_disk"] * 1.0)) * 100.0;
-  await updateColordynamic(disktext, disk_percent);
+  updateColordynamic(disktext, disk_percent);
 }
-async function updateColordynamic(elem, value) {
+function updateColordynamic(elem, value) {
   if (!elem) {
     console.log("Cannot find Elemt to set color");
     return;
@@ -580,32 +556,26 @@ async function updateColordynamic(elem, value) {
   //elem.style.color = getColor(value);
   elem.style.setProperty("color", getColor(value), "important");
 }
-async function updateServerTemp(tank, serverId) {
-  const LineChartId = `${tank}_${serverId}_TemperatureLineChart`;
-  // if (physicalserverchart[LineChartId]) {
-  //   physicalserverchart[LineChartId].destroy();
-  //   delete physicalserverchart[LineChartId];
-  // }
+async function updateServerTemp(tank, server) {
+  const LineChartId = `${tank}_${server}_TemperatureLineChart`;
   const Chart = document.getElementById(`${LineChartId}`);
-  const TemperatureData = await fetchPhysicaltemp(tank, serverId);
+  const TemperatureData = await fetchPhysicaltemp(tank, server);
   let RenderCategories = [];
   let RenderSeries = [];
-  const oneTime = TemperatureData[0].data;
-  const filterData = await filterByInterval(oneTime, Timegap);
-  for (const t of filterData) {
-    const TimeUST = t[`Timestamp`];
-    const dateUST = new Date(TimeUST);
-    const time = dateUST.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    const date = dateUST.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
-    RenderCategories.push(`${date} ${time}`);
-  }
-  for (const NameAndData of TemperatureData) {
-    let DataRender = [];
-    let CookedData = await filterByInterval(NameAndData.data, Timegap);
-    for (const a of CookedData) {
-      DataRender.push(a.temperature_celsius);
+  for (const a of TemperatureData) {
+    a.data = await filterByInterval(a.data, Timegap);
+    console.log(a);
+    let RenderData = [];
+    for (t of a.data) {
+      if (RenderCategories.length != a.data.length) {
+        const dateUST = new Date(t["Timestamp"]);
+        const time = dateUST.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+        const date = dateUST.toLocaleDateString('en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        RenderCategories.push(`${date} ${time}`);
+      }
+      RenderData.push(t.avg_temp)
     }
-    RenderSeries.push({ name: `${NameAndData.adapter}_${NameAndData.core}`, data: DataRender });
+    RenderSeries.push({ name: a.name, data: RenderData });
   }
   const generateColor = (index) => {
     // Large hue step to jump across the color wheel
@@ -628,6 +598,7 @@ async function updateServerTemp(tank, serverId) {
   // index 1: hsl(35, 65%, 55%) - Orange-Red, less saturated, darker
   // index 2: hsl(70, 75%, 55%) - Yellow-Orange, more saturated, darker
   // index 3: hsl(105, 65%, 65%) - Green-Yellow, less saturated, lighter
+  console.log("check", RenderSeries);
   const seriesCount = RenderSeries.length;
   const colorsRender = Array.from({ length: seriesCount }, (_, i) => generateColor(i));
   const commonOptions = {
@@ -641,30 +612,6 @@ async function updateServerTemp(tank, serverId) {
         enabled: true, easing: 'linear',
         dynamicAnimation: { speed: 500 }
       },
-      // sparkline: {
-      //   enabled: true
-      // },
-      // --- NEW: Add dataPointSelection event listener ---
-      events: {
-        dataPointSelection: function (event, chartContext, config) {
-          // Check if a valid data point was clicked
-          //console.log(`hahahafaseafasfesfaa`);
-
-          if (config.dataPointIndex !== undefined && config.dataPointIndex !== -1) {
-            const clickedDataPoint = filterData[config.dataPointIndex];
-            //debugger;
-            if (clickedDataPoint && clickedDataPoint.Timestamp) {
-              if (TimePicked !== clickedDataPoint.Timestamp) {
-                TimePicked = clickedDataPoint.Timestamp;
-              }
-            }
-            else {
-              console.log(`Please pick a new Point`);
-            }
-          }
-        }
-      }
-      // --- END NEW ---
     },
     markers: {
       size: 0.5
@@ -723,44 +670,60 @@ async function updateServerTemp(tank, serverId) {
   }
 }
 async function updateServersCards() {
-
-}
-async function renderServerCards(cardNum) {
   const container = document.getElementById("VirtualServersInServersContainer");
-  container.innerHTML = ""; // clear old cards
-
-  const screenWidth = window.innerWidth;
-  const screenHeight = window.innerHeight - 300; // Adjust for header/menus
-  const totalCards = cardNum;
-
-  // Apply grid style
-  //container.style.gridTemplateColumns = `repeat(${bestCols}, 1fr)`;
-
-  // Add cards
-  for (let i = 0; i < allVirtualServers.length; i++) {
+  for (let i = 0; i < container.children.length; i++) {
+    const ServerCard = container.children[i];
     const VirtualServer = allVirtualServers[i]["SERVER_VIRTUAL_NAME"];
-    const TankId = allVirtualServers[i]["TANK_NUM"];
+    const tank = allVirtualServers[i]["TANK_NUM"];
     const Serverid = allVirtualServers[i]["SERVER_NUM"];
-    const cardInfo = await fetchOverview(TankId, Serverid, VirtualServer);
+    const cardInfo = await fetchOverview(tank, Serverid, VirtualServer);
+    const cardName = document.getElementById(`${tank}_${Serverid}_${i}_Name_card`);
+    const cardStatus = document.getElementById(`${tank}_${Serverid}_${i}_status_card`);
+    const cardRam = document.getElementById(`${tank}_${Serverid}_${i}_ram_cardinphysical`);
+    const cardcpu = document.getElementById(`${tank}_${Serverid}_${i}_cpu_cardinphysical`);
+    const cardDisk = document.getElementById(`${tank}_${Serverid}_${i}_disk_cardinphysical`);
+    if (VirtualServer !== cardName.innerHTML) {
+      cardName.innerHTML = VirtualServer;
+    }
+    if (cardInfo["status"] === "running") {
+      cardStatus.className = "badge bg-success";
+    }
+    else if (cardInfo["status"] === "stopped") {
+      cardStatus.className = "badge bg-dark";
+    }
+    cardStatus.innerHTML = cardInfo["status"];
+    cardRam.innerHTML = `${cardInfo["Ram_Usage"]} (MB)`;
+    const RamInfo = cardInfo["Ram_Usage"].split('/');
+    updateColordynamic(cardRam, (parseFloat(RamInfo[0]) / parseFloat(RamInfo[1])) * 100.0);
+    cardcpu.innerHTML = `${cardInfo["CPU_USAGE"]}/${cardInfo["NUM_CORES"]}`;
+    updateColordynamic(cardcpu, parseFloat(cardInfo["CPU_USAGE"]));
+    cardDisk.innerHTML = `${cardInfo["Disk_Usage"]} (GB)`;
+    const DiskInfo = cardInfo["Disk_Usage"].split('/');
+    updateColordynamic(cardDisk, (parseFloat(DiskInfo[0]) / parseFloat(DiskInfo[1])) * 100.0);
+  }
+}
+async function renderServerCards(tank, server) {
+  cardNum = allVirtualServers.length;
+  const container = document.getElementById("VirtualServersInServersContainer");
+  if (container.children.length === cardNum) {
+    console.log("There has been enough cards");
+    return;
+  }
+  container.innerHTML = ""; // clear old cards
+  for (let i = Math.min(cardNum, container.children.length); i < Math.max(cardNum, container.children.length); i++) {
     const card = document.createElement("div");
     card.classList.add("virtual-server-card");
     card.style = "padding-bottom: 0";
     card.innerHTML = `
-      <h6 class="mb-1 text-truncate">Virtual Server ${VirtualServer}</h6>
-      <span id= "${TankId}_${Serverid}_${VirtualServer}_status_card"> ${cardInfo["status"]}</span>
+      <h6 class="mb-1 text-truncate" id = "${tank}_${server}_${i}_Name_card"><strong>N/A</strong></h6>
+      <span id= "${tank}_${server}_${i}_status_card">N/A</span>
       <ul class="list-unstyled mb-0" >
-        <li><strong>RAM:</strong> ${cardInfo["Ram_Usage"]} (MB) </li>
-        <li><strong>CPU:</strong>  ${cardInfo["CPU_USAGE"]}/${cardInfo["NUM_CORES"]} </li>
-        <li><strong>Disk:</strong> ${cardInfo["Disk_Usage"]} (GB) </li>
+        <li><strong>RAM: </strong><span id= "${tank}_${server}_${i}_ram_cardinphysical">N/A</span></li>
+        <li><strong>CPU: </strong><span id= "${tank}_${server}_${i}_cpu_cardinphysical">N/A</span></li>
+        <li><strong>Disk: </strong><span id= "${tank}_${server}_${i}_disk_cardinphysical">N/A</span></li>
       </ul>
     `;
     container.appendChild(card);
-    if (cardInfo["status"] === "running") {
-      document.getElementById(`${TankId}_${Serverid}_${VirtualServer}_status_card`).className = "badge bg-success";
-    }
-    else if (cardInfo["status"] === "stopped") {
-      document.getElementById(`${TankId}_${Serverid}_${VirtualServer}_status_card`).className = "badge bg-dark";
-    }
   };
 }
 async function renderServerCardsTest(cardNum) {
