@@ -1,5 +1,4 @@
 async function RunSideBar() {
-    console.log("check");
     await fetchtanklist();
     let sidebar = document.getElementById("side-bar");
     if (!sidebar) {
@@ -9,7 +8,7 @@ async function RunSideBar() {
         for (const tank of tankList) {
             let oneTank = document.createElement('li');
             oneTank.className = 'menu-item has-submenu active';
-            oneTank.innerHTML = `<a href="javascript:void(0);" class="menu-link menu-toggle" on>
+            oneTank.innerHTML = `<a href="javascript:void(0);" class="menu-link menu-toggle">
               <div data-type="tank" id="${tank}">Oil tank ${tank}</div>
             </a>
             <ul class = "menu-sub" id = "submenu_tank-${tank}"> </ul>`
@@ -23,6 +22,7 @@ async function RunSideBar() {
 }
 async function populateServerSidebar(tank) {
     await fetchServerList(tank);
+    console.log(serverList);
     let SelectedTank = document.getElementById(`submenu_tank-${tank}`);
     if (!SelectedTank) {
         throw new Error("Cannot find html id of the tank");
@@ -64,9 +64,9 @@ async function populateVirtualServerSidebar(tank, serverId) {
     // We only remove dynamically added "no items" messages if any.
     $serverMenuSub.find('.text-muted').remove(); // Remove 'No virtual servers found' placeholder if it exists
     try {
-        if (allVirtualServers.length === 0) {
-            await fetchVirtualServerList(tank, serverId);
-        }
+
+        await fetchVirtualServerList(tank, serverId);
+
         /**
          * Create HTML element dynamically based on Virtual ServerList
          */

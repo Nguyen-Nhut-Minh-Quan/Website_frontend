@@ -1,15 +1,15 @@
 let diskCharts = {}; // Stores ApexCharts instances
 let diskUpdateInterval; // Stores the interval ID
-let CurrentPhysicalServer = null; // Store currently active server ID
-let CurrentVirtualServer = null; // Store currently active virtual server ID
+let server = null; // Store currently active server ID
+let virtual = null; // Store currently active virtual server ID
 let TimePicked = null;
 let allVirtualServers = [];
 let DayStart = getToday();
 let DayEnd = getToday();
 let TimeStart = `00:00`
 let TimeEnd = `23:59`;
-let Timegap = "3600";
-//let CurrentTank = null;
+let Timegap = "900";//Cai nay la thoi gian ra giay (vdu 5 phut la 900 giay)
+//let tank = null;
 const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 function getToday() {
   const date = new Date();
@@ -47,34 +47,27 @@ async function resetTime() {
   document.getElementById(`starttime`).value = '00:00';
   document.getElementById(`enddate`).value = `${today}`;
   document.getElementById(`startdate`).value = `${today}`;
-  document.getElementById('intervalSelect').value = "3600";
+  document.getElementById('intervalSelect').value = "900";
 }
 // Your existing fetch functions
-async function fetchOverview() {
+async function fetchOverview(tank, serverid, virtualid) {
   try {
-    const baseUrl = `${API_BASE_URL}/get_info/specific_time/${Tank_Location}/${CurrentTank}/${CurrentPhysicalServer}/${CurrentVirtualServer}`;
-    const query = new URLSearchParams({
-      user_timezone: userTimeZone,
-      timepick: TimePicked
-    }).toString();
-    const apiUrl = `${baseUrl}?${query}`;
-    const response = await fetch(apiUrl);
+    const response = await fetch(`${API_BASE_URL}/get_info/${Tank_Location}/${tank}/${serverid}/${virtualid}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching CPU details for Virtual Server :${CurrentVirtualServer} of ${CurrentPhysicalServer}:`, error);
+    console.error(`Error fetching CPU details for Virtual Server :${virtual} of ${server}:`, error);
     return null; // Return null on error for robust handling
   }
-
 }
-async function fetchCpuUsageVirtualServer() {
+async function fetchCpuUsageVirtualServer(tank, server, virtual) {
   try {
     const start = `${DayStart} ${TimeStart}`;
     const end = `${DayEnd} ${TimeEnd}`;
-    const baseUrl = `${API_BASE_URL}/cpu-usage/virtual-server/${Tank_Location}/${CurrentTank}/${CurrentPhysicalServer}/${CurrentVirtualServer}`;
+    const baseUrl = `${API_BASE_URL}/cpu-usage/virtual-server/${Tank_Location}/${tank}/${server}/${virtual}`;
     const queryParams = new URLSearchParams({
       user_timezone: userTimeZone,
       start: start,
@@ -88,15 +81,15 @@ async function fetchCpuUsageVirtualServer() {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching CPU details for Virtual Server :${VirtualId} of ${serverId}:`, error);
+    console.error(`Error fetching CPU details for Virtual Server :${virtual} of ${server}:`, error);
     return null; // Return null on error for robust handling
   }
 }
-async function fetchRamUsageVirtualServer() {
+async function fetchRamUsageVirtualServer(tank, server, virtual) {
   const start = `${DayStart} ${TimeStart}`;
   const end = `${DayEnd} ${TimeEnd}`;
   try {
-    const baseUrl = `${API_BASE_URL}/ram-usage/virtual-server/${Tank_Location}/${CurrentTank}/${CurrentPhysicalServer}/${CurrentVirtualServer}`;
+    const baseUrl = `${API_BASE_URL}/ram-usage/virtual-server/${Tank_Location}/${tank}/${server}/${virtual}`;
     const queryParams = new URLSearchParams({
       user_timezone: userTimeZone,
       start: start,
@@ -110,28 +103,28 @@ async function fetchRamUsageVirtualServer() {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching ram details for Virtual Server :${VirtualId} of ${serverId}:`, error);
+    console.error(`Error fetching ram details for Virtual Server :${virtual} of ${server}:`, error);
     return null; // Return null on error for robust handling
   }
 }
-async function fetchDiskVirtualServer() {
+async function fetchDiskVirtualServer(tank, server, virtual) {
   try {
-    const response = await fetch(`${API_BASE_URL}/disk-usage/by-virtual_server/${Tank_Location}/${CurrentTank}/${CurrentPhysicalServer}/${CurrentVirtualServer}`);
+    const response = await fetch(`${API_BASE_URL}/disk-usage/by-virtual_server/${Tank_Location}/${tank}/${server}/${virtual}`);
     if (!response.ok) {
       throw new Error(`HTTP error! status: ${response.status}`);
     }
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error(`Error fetching disk details for Virtual Server :${VirtualId} of ${serverId}:`, error);
+    console.error(`Error fetching disk details for Virtual Server :${virtual} of ${server}:`, error);
     return null; // Return null on error for robust handling
   }
 }
 
 async function fetchVirtualServerList(tank, physical) {
   allVirtualServers = [];
-  //console.log(CurrentTank);
-  //console.log(CurrentPhysicalServer);
+  //console.log(tank);
+  //console.log(server);
   try {
     const response = await fetch(`${API_BASE_URL}/virtual_server/${Tank_Location}/${tank}/${physical}`);
     if (!response.ok) {
@@ -141,9 +134,10 @@ async function fetchVirtualServerList(tank, physical) {
     for (const s of data) {
       allVirtualServers.push(s);
     }
+    console.log(allVirtualServers);
     return;
   } catch (error) {
-    console.error(`Error fetching server details for ${serverId}:`, error);
+    console.error(`Error fetching server details for ${server}:`, error);
     return;
   }
 }
@@ -153,93 +147,62 @@ async function StopUpdateServerMenu() {
     diskUpdateInterval = null;
   }
 }
-async function loadVirtualServerMenu(virtualServerId) {
+async function loadVirtualServerMenu(tank, server, virtual) {
   resetTime();
-
   // Define the chartID based on the currently active virtual server
-  const barID = `${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_barchart_diskUsage`;
-  const LineId = `${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_linechart_ramusage`;
-  const CpuId = `${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_linechart_cpuUsage`;
   // 1. Clear any *previous* interval that might be running for a different (or old) virtual server
   if (diskUpdateInterval) {
     clearInterval(diskUpdateInterval);
     diskUpdateInterval = null;
   }
-
-  // 2. Destroy the *existing* chart instance for this chartID if it already exists.
-  // This is crucial when navigating back to the same page, as the HTML elements
-  // are being replaced.
-  // THIS IS THE CORRECT PLACE FOR CHART DESTRUCTION
-  if (diskCharts[barID]) {
-    diskCharts[barID].destroy();
-    delete diskCharts[barID];
-  }
-  if (diskCharts[LineId]) {
-    diskCharts[LineId].destroy();
-    delete diskCharts[LineId];
-  }
-  if (diskCharts[CpuId]) {
-    diskCharts[CpuId].destroy();
-    delete diskCharts[CpuId];
-  }
-
   // 3. Render the HTML content first.
   // This ensures the target HTML element for the chart exists *before* we try to create the chart.
   const content = `
-        <div class="container-xxl flex-grow-1 container-p-y" id="${CurrentVirtualServer}-menu">
-            <h4 class="py-4 mb-6">Virtual Machine: ${CurrentVirtualServer} Details</h4>
-            <h6 class="text-muted mb-4">Running on ${CurrentPhysicalServer}</h6>
-
+        <div class="container-xxl flex-grow-1 container-p-y" id="${virtual}-menu">
              <div class="row">
-                <div class="col-lg-6 col-md-3 mb-3">
+                <div class="col-xxl-8 col-xl-8 col-lg-8 col-md-8 col-sm-8 col-8">
                     <div class="card h-100">
                         <div class="card-body">
-                            <div id ="${barID}">
+                            <div id ="${tank}_${server}_${virtual}_barchart_diskUsage">
                                 <div class = "alert alert-info text-center" role = "alert"> Loading Bar Chart for disk Usage </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-6 col-md-3 mb-3">
-                    <div class="card h-100" style="max-height: 200px !important">
+                <div class="col-xxl-4 col-xl-4 col-lg-4 col-md-4 col-sm-4 col-4">
+                    <div class="card h-100" style="height: 200px !important">
                         <div class="card-header">
                             <h5 class="card-title mb-0">Current Status & Details</h5>
                         </div>
                         <div class="card-body">
                             <ul class="list-group list-group-flush">
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <strong>Date Selected:</strong> <span id="${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_Date">N/A</span>
+                                    <strong>Status:</strong> <span id="${tank}_${server}_${virtual}_status">N/A</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <strong>Time Selected:</strong> <span id="${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_Time">N/A</span>
+                                    <strong>Used RAM:</strong> <span id="${tank}_${server}_${virtual}_ram">N/A</span>
                                 </li>
                                 <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <strong>Status:</strong> <span id="${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_status">N/A</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <strong>Used RAM:</strong> <span id="${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_ram">N/A</span>
-                                </li>
-                                <li class="list-group-item d-flex justify-content-between align-items-center">
-                                    <strong>Used CPU:</strong> <span id="${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_cpu">N/A</span>
+                                    <strong>Used CPU:</strong> <span id="${tank}_${server}_${virtual}_cpu">N/A</span>
                                 </li>
                             </ul>
                         </div>
                     </div>
                 </div>
-                <div class="col-lg-12 col-md-3 mb-3">
-                    <div class="card h-100" style="max-height: 200px !important">
-                        <div class="card-body">
-                            <div id= "${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_linechart_ramusage">
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <div class="card h-100" style = "height:225px!important;">
+                        <div class="card-body" style = "height: 100% ; max-height:250px;">
+                            <div id= "${tank}_${server}_${virtual}_linechart_ramusage" style="height : 100%; max-height: 250px;">
                                 <div class = "alert alert-info text-center" role="alert">Loading Used Ram Line Chart</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="col-lg-12 col-md-3 mb-3">
-                    <div class="card h-100" style="max-height: 200px !important">
-                        <div class="card-body">
-                            <div id ="${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_linechart_cpuUsage">
+                <div class="col-xxl-12 col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12">
+                    <div class="card h-100" style="height:225px !important;">
+                        <div class="card-body" style = "height: 100% ; max-height:250px;">
+                            <div id ="${tank}_${server}_${virtual}_linechart_cpuUsage" style="height : 100%; max-height: 250px;">
                                 <div class = "alert alert-info text-center" role = "alert"> Loading Line Chart for CPU Usage </div>
                             </div>
                         </div>
@@ -249,29 +212,36 @@ async function loadVirtualServerMenu(virtualServerId) {
         </div>
     `;
   await $('.content-wrapper').html(content);
-
-  // 4. Perform an immediate initial update for the disk chart.
-  // This will *create* the chart instance because diskCharts[chartID] is currently empty.
-  await UpdateDiskStatsDisplay(barID);
-  await updateRamStatsDisplay(LineId);
-  await updateCpuDisplay(CpuId);
-  // 5. Set up a recurring interval to fetch and update disk data.
-  // This time, when UpdateDiskStatsDisplay is called, diskCharts[chartID] will exist,
-  // and it will *update* the existing chart without re-rendering.
+  if (diskCharts[`${tank}_${server}_${virtual}_barchart_diskUsage`]) {
+    diskCharts[`${tank}_${server}_${virtual}_barchart_diskUsage`].destroy();
+    delete diskCharts[`${tank}_${server}_${virtual}_barchart_diskUsage`];
+  }
+  if (diskCharts[`${tank}_${server}_${virtual}_linechart_ramusage`]) {
+    diskCharts[`${tank}_${server}_${virtual}_linechart_ramusage`].destroy();
+    delete diskCharts[`${tank}_${server}_${virtual}_linechart_ramusage`];
+  }
+  if (diskCharts[`${tank}_${server}_${virtual}_linechart_cpuUsage`]) {
+    diskCharts[`${tank}_${server}_${virtual}_linechart_cpuUsage`].destroy();
+    delete diskCharts[`${tank}_${server}_${virtual}_linechart_cpuUsage`];
+  }
+  await updateTime();
+  await UpdateDiskStatsDisplay(tank, server, virtual);
+  await updateRamStatsDisplay(tank, server, virtual);
+  await updateCpuDisplay(tank, server, virtual);
+  await UpdateOverview(tank, server, virtual);
   diskUpdateInterval = setInterval(async () => {
     // Ensure context is still available (important if navigation happens quickly)
-    if (CurrentPhysicalServer && CurrentVirtualServer) {
-      await UpdateDiskStatsDisplay(barID);
-      await updateRamStatsDisplay(LineId);
-      await updateCpuDisplay(CpuId);
-      await updateTime();
-      await UpdateOverview();
-    }
-  }, 1000); // Update every 5 seconds
+    await updateTime();
+    await UpdateDiskStatsDisplay(tank, server, virtual);
+    await updateRamStatsDisplay(tank, server, virtual);
+    await updateCpuDisplay(tank, server, virtual);
+    await UpdateOverview(tank, server, virtual);
+  }, 30000); // Update every 5 seconds
 }
 
 // Modified UpdateDiskStatsDisplay to always fetch the latest data itself
-async function UpdateDiskStatsDisplay(chartID) {
+async function UpdateDiskStatsDisplay(tank, server, virtual) {
+  chartID = `${tank}_${server}_${virtual}_barchart_diskUsage`;
   const elem = document.getElementById(chartID);
 
   // THIS IS THE CRITICAL CHANGE: The 'elem' check must be before any chart operations
@@ -286,10 +256,10 @@ async function UpdateDiskStatsDisplay(chartID) {
   }
 
   // Fetch the latest data inside the update function
-  const latest_disk_stat = await fetchDiskVirtualServer();
+  const latest_disk_stat = await fetchDiskVirtualServer(tank, server, virtual);
 
   if (!latest_disk_stat) {
-    elem.innerHTML = "No current data available for Disk Usage";
+    elem.innerHTML = `<div class="alert alert-info text-center" role="alert"> Loading Line Chart for CPU Usage </div>`;
     return;
   }
   //console.log(latest_disk_stat);
@@ -305,7 +275,7 @@ async function UpdateDiskStatsDisplay(chartID) {
   }
 
   // Update the text display
-  const textDisplayElem = document.getElementById(`${CurrentPhysicalServer}}_${CurrentVirtualServer}_text_diskUsage`);
+  const textDisplayElem = document.getElementById(`${server}}_${virtual}_text_diskUsage`);
   if (textDisplayElem) {
     textDisplayElem.innerText = `${usedBytes.toFixed(2)} GB / ${totalBytes.toFixed(2)} GB`;
   }
@@ -320,7 +290,6 @@ async function UpdateDiskStatsDisplay(chartID) {
   } else {
     // If chart does not exist, create it for the first time
     elem.innerHTML = ''; // Clear the "Loading" message (or any previous content)
-
     const options = {
       series: seriesToRender,
       chart: {
@@ -328,7 +297,7 @@ async function UpdateDiskStatsDisplay(chartID) {
         height: 150,
         stacked: true,
         toolbar: {
-          show: true
+          show: false
         },
         animations: {
           enabled: true,
@@ -350,14 +319,14 @@ async function UpdateDiskStatsDisplay(chartID) {
       plotOptions: {
         bar: {
           horizontal: true,
-          borderWidth: 0, // Corrected typo
+          borderWidth: 0,
           dataLabels: {
             position: 'center',
           }
         },
       },
       xaxis: {
-        categories: ["test"],
+        categories: ["Disk Usage"],
         labels: {
           show: true
         },
@@ -378,7 +347,7 @@ async function UpdateDiskStatsDisplay(chartID) {
         }
       },
       legend: {
-        position: 'bottom',
+        show: false,
       },
       responsive: [{
         breakpoint: 480,
@@ -398,23 +367,23 @@ async function UpdateDiskStatsDisplay(chartID) {
   }
 }
 
-async function updateCpuDisplay(chartid) {
-  if (chartid === null || CurrentPhysicalServer === null || CurrentVirtualServer === null) {
+async function updateCpuDisplay(tank, server, virtual) {
+  chartid = `${tank}_${server}_${virtual}_linechart_cpuUsage`;
+  if (chartid === null || server === null || virtual === null) {
     throw new Error("No Valid Data for Ram Chart");
   }
-  console.log("Update CPU boiz");
   const elem = document.getElementById(chartid);
   if (!elem) {
     throw new Error("Cannot find the id of CPU Chart");
   }
-  let CPUdata = await fetchCpuUsageVirtualServer();
-  console.log(CPUdata);
+  let CPUdata = await fetchCpuUsageVirtualServer(tank, server, virtual);
   if (!CPUdata || CPUdata.length === 0) {
     elem.innerHTML = '<div class="alert alert-info text-center" role="alert">Loading Chart Data...</div>';
     return;
   }
   let dataseries = [];
   let categories = [];
+  CPUdata = await filterByInterval(CPUdata, Timegap);
   for (const DataPoint of CPUdata) {
     const use = parseFloat(DataPoint[`CPU_USAGE`]);
     dataseries.push(use);
@@ -432,7 +401,7 @@ async function updateCpuDisplay(chartid) {
       height: "100%",
       type: 'line',
       zoom: { enabled: false },
-      toolbar: { show: true },
+      toolbar: { show: false },
       animations: {
         enabled: true, easing: 'linear',
         dynamicAnimation: { speed: 500 }
@@ -464,7 +433,7 @@ async function updateCpuDisplay(chartid) {
     },
     colors: ['#FF4560'], // A distinct color for the line
     stroke: { curve: 'smooth', width: 1 },
-    title: { text: `Ram Usage`, align: 'left', style: { color: '#CCCCCC' } }, // Light grey title
+    title: { text: `CPU Usage`, align: 'left', style: { color: '#CCCCCC' } }, // Light grey title
     grid: {
       row: { colors: ['#444444', 'transparent'], opacity: 0.5 }, // Darker grid rows for dark theme
       borderColor: '#555555' // Darker grid lines for dark background
@@ -474,12 +443,20 @@ async function updateCpuDisplay(chartid) {
       tickAmount: 'dataAndLabels',
       type: 'category',
       labels: {
-        show: false,
+        show: false  // 💥 This removes label space entirely
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
       }
     },
     yaxis: {
       title: { show: false }, // Light grey title
       min: 0,
+      max: 100 * parseFloat(numCores),
+      tickAmount: 10,
       labels: {
         formatter: function (val) { return `${val.toFixed(2)}% of ${numCores} cores`; },
         style: { colors: '#FFFFFF' } // White labels for dark background
@@ -496,33 +473,30 @@ async function updateCpuDisplay(chartid) {
   if (diskCharts[chartid]) {
     diskCharts[chartid].updateOptions(commonOptions);
   } else {
+    elem.innerHTML = '';
     const chart = new ApexCharts(elem, commonOptions);
     chart.render();
     diskCharts[chartid] = chart;
   }
 }
-async function updateRamStatsDisplay(chartid) {
+async function updateRamStatsDisplay(tank, server, virtual) {
+  chartid = `${tank}_${server}_${virtual}_linechart_ramusage`;
   if (chartid === null) {
-
     throw new Error("No Valid Data for Ram Chart");
   }
   const elem = document.getElementById(chartid);
-  if (!elem) {
-    elem.innerHTML = '<div class="alert alert-info text-center" role="alert">Loading Chart Data...</div>';
-    return;
-  }
-  let RamData = await fetchRamUsageVirtualServer();
+  let RamData = await fetchRamUsageVirtualServer(tank, server, virtual);
   //console.log(RamData);
   if (!RamData || RamData.length === 0) {
     elem.innerHTML = '<div class="alert alert-info text-center" role="alert">Loading Chart Data...</div>';
     return;
   }
+  RamData = await filterByInterval(RamData, Timegap);
   let dataseries = [];
   let categories = [];
   for (const DataPoint of RamData) {
     const temp = DataPoint['Ram_Usage'];
     const UsedVal = parseFloat(temp.split(`/`)[0]);
-    const totalVal = parseFloat(temp.split(`/`)[1]);
     const TimeUST = DataPoint['Timestamp'];
     const USTdate = new Date(TimeUST);
     dataseries.push(UsedVal);
@@ -539,7 +513,7 @@ async function updateRamStatsDisplay(chartid) {
       height: "100%",
       type: 'line',
       zoom: { enabled: false },
-      toolbar: { show: true },
+      toolbar: { show: false },
       animations: {
         enabled: true, easing: 'linear',
         dynamicAnimation: { speed: 500 }
@@ -582,14 +556,22 @@ async function updateRamStatsDisplay(chartid) {
       tickAmount: 'dataAndLabels',
       type: 'category',
       labels: {
-        show: false,
+        show: false  // 💥 This removes label space entirely
+      },
+      axisBorder: {
+        show: false
+      },
+      axisTicks: {
+        show: false
       }
     },
     yaxis: {
-      title: { text: 'Ram Usage', style: { color: '#CCCCCC' } }, // Light grey title
+      title: { show: false }, // Light grey title
+      tickAmount: 10,
       min: 0,
+      max: 20000,
       labels: {
-        formatter: function (val) { return val.toFixed(2); },
+        formatter: function (val) { return formatSizeSync(val); },
         style: { colors: '#FFFFFF' } // White labels for dark background
       }
     },
@@ -597,32 +579,34 @@ async function updateRamStatsDisplay(chartid) {
       intersect: true,
       shared: false,
       enabled: true,
-      y: { formatter: function (val) { return val.toFixed(2); } },
+      y: { formatter: function (val) { return formatSizeSync(val); } },
       theme: 'dark' // Ensure tooltip is dark theme compatible
     }
   };
   if (diskCharts[chartid]) {
     diskCharts[chartid].updateOptions(commonOptions);
   } else {
+    elem.innerHTML = '';
     const chart = new ApexCharts(elem, commonOptions);
     chart.render();
     diskCharts[chartid] = chart;
   }
 }
-async function UpdateOverview() {
-  const Date_text = document.getElementById(`${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_Date`);
-  const Time_text = document.getElementById(`${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_Time`);
-  const ram_text = document.getElementById(`${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_ram`);
-  const cpu_text = document.getElementById(`${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_cpu`);
-  const status_text = document.getElementById(`${CurrentTank}_${CurrentPhysicalServer}_${CurrentVirtualServer}_status`);
-  const overview = await fetchOverview();
-  ram_text.innerHTML = `${overview['Ram_Usage ']} MB`;
-  cpu_text.innerHTML = `${overview[`CPU_USAGE`]} % of ${overview['NUM_CORES']}`;
+async function UpdateOverview(tank, server, virtual) {
+  const ram_text = document.getElementById(`${tank}_${server}_${virtual}_ram`);
+  const cpu_text = document.getElementById(`${tank}_${server}_${virtual}_cpu`);
+  const status_text = document.getElementById(`${tank}_${server}_${virtual}_status`);
+  const overview = await fetchOverview(tank, server, virtual);
+  ram_text.innerHTML = `${overview['Ram_Usage']} MB`;
+  const dum = overview['Ram_Usage'].split('/');
+  const percentcpu = (parseFloat(dum[0]) / parseFloat(dum[1])) * 100;
+  updateColordynamic(ram_text, percentcpu);
+  cpu_text.innerHTML = `${overview[`CPU_USAGE`]} of ${overview['NUM_CORES']}`;
+  updateColordynamic(cpu_text, parseFloat(overview[`CPU_USAGE`]));
   status_text.innerHTML = `${overview['status']}`;
-  const temp = overview['Timestamp'];
-  const dateUST = new Date(temp);
-  const Time = dateUST.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-  const date = dateUST.toLocaleDateString(undefined, { year: 'numeric', month: '2-digit', day: '2-digit' });
-  Date_text.innerHTML = date;
-  Time_text.innerHTML = Time;
+  if (overview['status'] === 'running') {
+    status_text.style.color = '#45ff80ff';
+  } else {
+    status_text.style.color = '#777472ff';
+  }
 }

@@ -7,8 +7,12 @@
 
 // ... rest of your config.js content
 const API_BASE_URL = 'https://monitor-api.orderx.vn/api';
+const troll = 'https://monitor-api.orderx.vn/api'
+'use strict';
 // ADD THIS LINE: Define SERVER_IDS globally here 
-const Tank_Location = "CACH-MANG-THANG-8"
+const SERVER_IDS = ["server-001", "server-002", "server-003"]; // Ensure these match your backend IDs 
+const Elements_need_time = ["Ram", "Temp", "Usage"];
+const Tank_Location = "VVK-HEAD-OFFICE"
 /* JS global variables
 
  !Please use the hex color code (#000) here. Don't use rgba(), hsl(), etc

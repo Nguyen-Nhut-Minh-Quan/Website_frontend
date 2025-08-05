@@ -1,8 +1,7 @@
 $(async function () {
-  console.log(API_BASE_URL);
-  console.log(CurrentTank);
   await loadTankMenu(CurrentTank);
   await RunSideBar();
+  console.log("severlist", serverList);
   // Centralized click listener for menu items (the 'box' part)
   $('body').on('click', '.menu-link div[data-type]', async function (e) {
     e.stopPropagation(); // Prevent the click from bubbling up and triggering the menu-toggle for parent <a>
@@ -19,31 +18,26 @@ $(async function () {
     switch (type) {
       case 'server':
         await StopUpdateTank();
+        await StopUpdateServerMenu();
         const temp = id.split('_');
         const tank_char = temp[0];
         CurrentTank = tank_char.split('-')[1];
         CurrentPhysicalServer = temp[1];
-        console.log("Start loading Server Menu");
         await loadServerMenu(CurrentTank, CurrentPhysicalServer);
-        physicalserverUpdateInterval = null;
-        clearInterval(diskUpdateInterval);
-        clearInterval(tankUpdateInterval);
         break;
       case 'virtual-server':
         await StopUpdateTank();
+        await StopUpdatePhysicalServer();
         const dum = id.split('_');
         CurrentTank = dum[1];
         CurrentPhysicalServer = dum[2];
         CurrentVirtualServer = dum[0];
-        allVirtualServers = [];
-        console.log("Before Loading Page: ", CurrentVirtualServer);
-        clearInterval(physicalserverUpdateInterval);
-        clearInterval(tankUpdateInterval);
-        await fetchVirtualServerList(CurrentTank, CurrentPhysicalServer);
-        await loadVirtualServerMenu(CurrentVirtualServer);
+        //await fetchVirtualServerList(CurrentTank, CurrentPhysicalServer);
+        await loadVirtualServerMenu(CurrentTank, CurrentPhysicalServer, CurrentVirtualServer);
         break;
       default:
-        console.log("Start loading Tank Menu");
+        await StopUpdateTank();
+        await StopUpdatePhysicalServer();
         CurrentTank = id;
         loadTankMenu(id);
         break;

@@ -19,7 +19,7 @@
 /* ! For .layout-navbar-fixed added fix padding top to .layout-page */
 /* Default navbar */
 .layout-navbar-fixed .layout-wrapper:not(.layout-without-menu) .layout-page {
-  padding-top: 64px !important;
+  padding-top: 72px !important;
 }
 .layout-navbar-fixed .layout-wrapper:not(.layout-horizontal):not(.layout-without-menu) .layout-page {
   padding-top: 72px !important;
