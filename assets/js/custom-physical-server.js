@@ -132,8 +132,7 @@ async function loadServerMenu(tank, server) {
   }
   const content = `
   <div class="container-xxl flex-grow-1 container-p-y"  style="display: flex; flex-direction: column; height: 100vh; padding: 0;" id="${tank}-${server}-menu">
-    <div class="top-section" style="flex: 0 0 auto;">
-      <div class="row m-0 p-0 g-0">
+      <div class="row m-0 p-0 g-0" id = "physicalservermenu-${tank}-${server}">
         <div class="col-lg-8 col-md-12 mb-4" style = "margin-block-end:0 !important;">
           <div class="card h-100">
             <div class="card-body">
@@ -174,7 +173,7 @@ async function loadServerMenu(tank, server) {
         <div class="col-lg-4 col-md-12 mb-4" style="margin-block-end:0 !important; padding :0 !important; max-height:175px">
           <div class="card h-100">
             <div class="card-body">
-              <div id="${tank}-${server}_RamUsageLineChart">
+              <div id="${tank}-${server}_RamUsageLineChart"style="max-height : 175px!important;margin-block-end:0 !important; margin-bottom : 0 !important; padding : 0!important">
                 <div class="alert alert-info text-center" role="alert">Loading Free RAM line chart...</div>
               </div>
             </div>
@@ -182,11 +181,11 @@ async function loadServerMenu(tank, server) {
         </div>
         <div class="col-lg-4 col-md-12 mb-4" style="margin-block-end:0 !important; padding :0 !important; max-height :175px!important;">
           <div class="card h-100">
-            <div class="card-header">
+            <div class="card-header" style= "padding:0;margin:0">
               <h5 class="card-title mb-0" id = "${tank}_${server}_title_disk_text">Total Disk Used</h5>
             </div>
             <div class="card-body">
-              <div id="${tank}-${server}_DiskUsageBarChart" >
+              <div id="${tank}-${server}_DiskUsageBarChart" style="max-height : 175px!important;margin-block-end:0 !important; margin-bottom : 0 !important; padding : 0!important">
                 <div class="alert alert-info text-center" role="alert">Loading Disk Usage line chart...</div>
               </div>
             </div>
@@ -202,10 +201,7 @@ async function loadServerMenu(tank, server) {
           </div>
         </div>
       </div>
-    </div>
-    <div class="scrollable-grid-wrapper" style="flex: 1 1 auto; overflow-y: auto; min-height: 0;">
-      <div id="VirtualServersInServersContainer" class="server-grid row g-0"</div>
-    </div>
+      <div class="row m-0 p-0 g-0" id="dynamic-server-cards-${tank}-${server}"></div>
   </div>
     `;
   // if (physicalserverchart[`${tank}-${server}_TemperatureLineChart`]) {
@@ -222,10 +218,10 @@ async function loadServerMenu(tank, server) {
   await updateServerCpu(tank, server);
   await updateOverviewPhysicalServer(tank, server);
   await renderServerCards(tank, server);
-  await updateServersCards();
+  await updateServersCards(tank,server);
   physicalserverUpdateInterval = setInterval(async () => {
     if (CurrentPhysicalServer) {
-      await updateTime();
+      await updateTime(tank,server);
       await updateServerTemp(tank, server);
       await updateServerDisk(tank, server);
       await updateServerRam(tank, server);
@@ -669,8 +665,8 @@ async function updateServerTemp(tank, server) {
     physicalserverchart[LineChartId] = chart;
   }
 }
-async function updateServersCards() {
-  const container = document.getElementById("VirtualServersInServersContainer");
+async function updateServersCards(tank,server) {
+  const container = document.getElementById(`dynamic-server-cards-${tank}-${server}`);
   for (let i = 0; i < container.children.length; i++) {
     const ServerCard = container.children[i];
     const VirtualServer = allVirtualServers[i]["SERVER_VIRTUAL_NAME"];
@@ -704,7 +700,7 @@ async function updateServersCards() {
 }
 async function renderServerCards(tank, server) {
   cardNum = allVirtualServers.length;
-  const container = document.getElementById("VirtualServersInServersContainer");
+  const container = document.getElementById(`dynamic-server-cards-${tank}-${server}`);
   if (container.children.length === cardNum) {
     console.log("There has been enough cards");
     return;
@@ -712,16 +708,19 @@ async function renderServerCards(tank, server) {
   container.innerHTML = ""; // clear old cards
   for (let i = Math.min(cardNum, container.children.length); i < Math.max(cardNum, container.children.length); i++) {
     const card = document.createElement("div");
-    card.classList.add("virtual-server-card");
-    card.style = "padding-bottom: 0";
+    card.classList.add("col-sm-6", "col-md-4", "col-lg-2");
     card.innerHTML = `
-      <h6 class="mb-1 text-truncate" id = "${tank}_${server}_${i}_Name_card"><strong>N/A</strong></h6>
-      <span id= "${tank}_${server}_${i}_status_card">N/A</span>
-      <ul class="list-unstyled mb-0" >
-        <li><strong>RAM: </strong><span id= "${tank}_${server}_${i}_ram_cardinphysical">N/A</span></li>
-        <li><strong>CPU: </strong><span id= "${tank}_${server}_${i}_cpu_cardinphysical">N/A</span></li>
-        <li><strong>Disk: </strong><span id= "${tank}_${server}_${i}_disk_cardinphysical">N/A</span></li>
-      </ul>
+      <div class= "card">
+        <div class = "card-body">
+          <h6 class="mb-1 text-truncate" id = "${tank}_${server}_${i}_Name_card"><strong>N/A</strong></h6>
+          <span id= "${tank}_${server}_${i}_status_card">N/A</span>
+          <ul class="list-unstyled mb-0" >
+            <li><strong>RAM: </strong><span id= "${tank}_${server}_${i}_ram_cardinphysical">N/A</span></li>
+            <li><strong>CPU: </strong><span id= "${tank}_${server}_${i}_cpu_cardinphysical">N/A</span></li>
+            <li><strong>Disk: </strong><span id= "${tank}_${server}_${i}_disk_cardinphysical">N/A</span></li>
+          </ul>
+        </div>
+      </div>
     `;
     container.appendChild(card);
   };
@@ -757,8 +756,7 @@ async function renderServerCardsTest(cardNum) {
   }
   for (let i = 0; i < totalCards; i++) {
     const card = document.createElement("div");
-    card.classList.add("virtual-server-card");
-    card.style = "padding-bottom: 0";
+    card.classList.add("col-sm-6 col-md-4 col-lg-3");
     card.innerHTML = `
       <h6 class="mb-1 text-truncate" style = "margin-bottom: 0rem!important;margin-top: 0rem!important;">Virtual Server ${i}</h6>
       <ul class="list-unstyled mb-0" >

@@ -1,6 +1,6 @@
 <!doctype html>
-<html lang="en" class="layout-navbar-fixed layout-menu-fixed" dir="ltr" data-skin="default"
-  data-assets-path="../../assets/" data-template="vertical-menu-template-starter" data-bs-theme="dark">
+<html lang="en" class="layout-navbar-fixed layout-menu-fixed layout-menu-expanded" dir="ltr" data-skin="default"
+  data-assets-path="/assets/" data-template="vertical-menu-template-starter" data-bs-theme="dark">
 
 <head>
   <meta charset="utf-8" />
@@ -18,105 +18,37 @@
     href="https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&ampdisplay=swap"
     rel="stylesheet" />
 
-  <link rel="stylesheet" href="../../assets/vendor/fonts/iconify-icons.css" />
+  <link rel="stylesheet" href="/assets/vendor/fonts/iconify-icons.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
 
 
-  <link rel="stylesheet" href="../../assets/vendor/libs/node-waves/node-waves.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/pickr/pickr-themes.css" />
-  <link rel="stylesheet" href="../../assets/vendor/css/core.css" />
-  <link rel="stylesheet" href="../../assets/css/demo.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/apex-charts/apex-charts.css" />
-  <link rel="stylesheet" href="../../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
+  <link rel="stylesheet" href="/assets/vendor/libs/node-waves/node-waves.css" />
+  <link rel="stylesheet" href="/assets/vendor/libs/pickr/pickr-themes.css" />
+  <link rel="stylesheet" href="/assets/vendor/css/core.css" />
+  <link rel="stylesheet" href="/assets/css/demo.css" />
+  <link rel="stylesheet" href="/assets/vendor/libs/apex-charts/apex-charts.css" />
+  <link rel="stylesheet" href="/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.css" />
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css" />
-  <script src="../../assets/vendor/js/helpers.js"></script>
-  <!--<script src="../../assets/vendor/js/template-customizer.js"></script>-->
-  <script src="../../assets/js/config.js"></script>
-  <link rel="stylesheet" href="../../assets/vendor/js/template-customizer.js" />
+  <script src="/assets/vendor/js/helpers.js"></script>
+  <script src="/assets/vendor/js/template-customizer.js"></script>
+  <script src="/assets/js/config.js"></script>
+  <link rel="stylesheet" href="/assets/vendor/js/template-customizer.js" />
   <style>
-    /* De cho Cai menu ben trai ko bien mat khi man hinh thu nho*/
-    #layout-menu {
-      display: block !important;
-      transform: none !important;
-      left: 0 !important;
-      visibility: visible !important;
+    div.card-body {
+      padding: 0 !important;
     }
 
-    .content-wrapper {
-      display: flex;
-      flex-grow: 1;
-      overflow-y: auto !important;
-      height: calc(100vh - 72px);
-      padding-left: 0.5rem;
-      /* Adjust 72px to your header height */
+    div.card-header {
+      padding: 0 !important;
+      margin: 0 !important;
     }
 
-    .menu-inner {
-      width: 100%;
-      max-width: 200px;
-      box-sizing: border-box;
-      overflow-x: hidden;
-    }
-
-    .menu-item {
-      width: 100%;
-      max-width: 100%;
-      box-sizing: border-box;
-    }
-
-    .menu-link {
-      width: 100%;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-
-    .container-xxl.flex-grow-1.container-p-y {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      height: unset;
-      min-height: 0;
-      padding-top: 0 !important;
-      padding-bottom: 0.5rem !important;
-      padding-right: 0 !important;
-    }
-
-    /* Adjust card component paddings to be super tight */
-    .card-header {
-      padding-top: 0.25rem !important;
-      /* Reduced */
-      padding-bottom: 0.25rem !important;
-      /* Reduced */
-    }
-
-    .card-body {
-      padding-bottom: 0rem;
-      padding-right: 0rem;
-      padding-left: 0rem;
-      padding-top: 0rem;
-
-    }
-
-    .card-body>div[id$="LineChart"]>.apexcharts-canvas {
-      display: block;
-      margin: 0.25rem !important;
-      padding: 0.25rem !important;
-    }
-
-    .card-body>div[id$="LineChart"] svg {
-      vertical-align: top !important;
-      /* Removes baseline alignment gap */
-    }
-
-    /* Adjust list items inside cards */
-    .list-group-item.d-flex.justify-content-between.align-items-center {
-      padding: 0.1rem 0.5rem !important;
-      /* Very tight padding for list items */
-    }
-
-    #VirtualServersInServersContainer.server-grid {
-      grid-auto-rows: 95px;
+    #serversInTankContainer.server-grid {
+      min-height: 100%;
+      height: 100% !important;
+      width: 100% !important;
+      grid-auto-rows: 120px;
+      grid-auto-columns: 150px;
       align-items: start;
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
@@ -142,9 +74,9 @@
       overflow: hidden;
       height: auto;
       min-height: 90px;
-      max-height: 120px;
-      min-width: 100px;
-      max-width: 130px;
+      max-height: 150px;
+      min-width: 120px;
+      max-width: 140px;
       font-size: 0.7rem;
       padding: 0rem !important;
       align-self: start;
@@ -152,94 +84,28 @@
       /* Aligns items to the start of the cross-axis (left side) */
     }
 
-    .virtual-server-card h6 {
-      margin-bottom: 0rem !important;
-      /* Reduce margin below title */
-      font-size: 0.8rem;
-      /* Smaller title font */
-    }
-
-    .virtual-server-card ul {
-      margin-bottom: 0 !important;
-      /* No margin below the list */
-    }
-
-    .virtual-server-card ul li {
-      line-height: 1.2;
-      /* Tighter line spacing */
-    }
-
-    /* Ensure chart containers are also height-optimized */
-    /* Reduce margins for Bootstrap columns containing cards */
-    .col-lg-6.col-md-6.mb-4,
-    .col-lg-6.col-md-12.mb-4 {
-      margin-bottom: 0.5rem !important;
-      /* Reduced space between rows of chart cards */
-      padding: 0.25rem !important;
-      /* Reduce padding for these columns */
-    }
-
-    #serversInTankContainer {
-      display: grid;
-      /* This is the key: auto-fit creates as many columns as possible.
-       minmax(110px, 1fr) ensures each card is at least 110px wide but grows to fill space.
-       Adjust 110px based on how small your card content can be before breaking readability. */
-      grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
-      gap: 0.5rem;
-      /* Small gap between cards for visual separation */
-      padding: 0.5rem !important;
-      /* Padding around the entire grid of cards */
-      flex: 1 1 auto;
-      /* **Crucial:** Allows this container to grow and shrink vertically,
-                       taking remaining space within its flex parent (the main container) */
-      overflow-y: auto;
-      /* Allow vertical scrolling ONLY if cards exceed container height */
-      box-sizing: border-box;
-      align-content: start;
-      /* Align rows to the start, not stretched, keeps them compact */
-      margin-top: 0.5rem !important;
-      /* Small margin above the grid if needed */
-    }
 
     /* Style for individual physical server cards */
     .physical-server-card {
-      max-width: unset !important;
-      /* Remove any max-width to allow expansion to 1fr */
-      min-width: 100px;
-      /* Ensure a minimum width for content readability */
-      height: 100px !important;
-      /* Let content dictate height, no fixed height */
-      min-height: 120px;
-      /* Set a reasonable min-height to maintain structure */
       background-color: #2f2f4f;
-      /* Dark background */
       border-radius: 0.5rem;
       box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
       overflow: hidden;
-      /* Hide any overflowing content if card shrinks too much */
-      font-size: 0.75rem;
-      /* Space out header and list */
-      padding: 0.25rem !important;
-      /* Internal padding for the card */
-    }
-
-    .physical-server-card .card-header {
-      padding-bottom: 0.1rem !important;
-      /* Reduce padding between header and body */
-    }
-
-    .physical-server-card .card-body {
-      padding-left: 0.5rem !important;
-      padding-right: 0rem p !important;
-      padding-top: 0.1rem !important;
-      /* Reduce padding between header and body */
-      flex-grow: 1;
-      /* Allow the body to grow and take available space */
+      height: auto;
+      min-height: 90px;
+      max-height: 120px;
+      min-width: 100px;
+      max-width: 140px;
+      font-size: 0.7rem;
+      padding: 0rem !important;
+      align-self: start;
+      /* Add this line to prevent horizontal stretching of flex items */
+      /* Aligns items to the start of the cross-axis (left side) */
     }
 
     .physical-server-card h6 {
-      margin-bottom: 0 !important;
-      /* No margin below title */
+      margin-bottom: 0rem !important;
+      /* Reduce margin below title */
       font-size: 0.8rem;
       /* Smaller title font */
     }
@@ -247,21 +113,11 @@
     .physical-server-card ul {
       margin-bottom: 0 !important;
       /* No margin below the list */
-      padding-left: 0 !important;
-      /* Remove default ul padding */
-      list-style: none;
-      /* Remove bullet points */
     }
 
     .physical-server-card ul li {
       line-height: 1.2;
       /* Tighter line spacing */
-      white-space: nowrap;
-      /* Prevent text from wrapping within list item */
-      overflow: hidden;
-      /* Hide overflow if nowrap causes issues */
-      text-overflow: ellipsis;
-      /* Add ellipsis for overflowing text */
     }
 
     /* Ensure the text-usage span inside list items is styled correctly */
@@ -274,23 +130,32 @@
 
 <body>
   <div class="layout-wrapper layout-content-navbar">
-    <div class="layout-container" style="display:flex;">
-      <aside id="layout-menu" class="layout-menu menu-vertical menu" style="width:225px">
+    <div class="layout-container">
+      <aside id="layout-menu" class="layout-menu menu-vertical menu">
         <div class="app-brand demo">
           <a href="javascript:void(0);" class="app-brand-link">
             <span class="app-brand-logo demo">
               <img src="Logo.webp" width="50" height="22" style="display: block;">
             </span>
           </a>
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+              <i class="icon-base ti tabler-menu-2 icon-md"></i>
+            </a>
+          </div>
         </div>
         <div class="menu-inner-shadow"></div>
-        <ul class="menu-inner py-1" id="side-bar" style="width:100%;max-width:225px"></ul>
-      </aside>0
-      <div class="layout-page" style="padding-left:210px!important;">
-        <nav
-          class="layout-navbar container-xxl navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
-          id="layout-navbar" style="padding-top:0 rem; padding-right:0rem;margin-top:0px;margin-right:0px;margin-bottom:0px; margin-left:0rem;height:
-          70px;width:100%;position: fixed;left:225px">
+        <ul class="menu-inner py-1" id="side-bar"></ul>
+      </aside>
+
+      <div class="layout-page flex-grow-1 container-p-y">
+        <nav class="layout-navbar navbar-detached navbar navbar-expand-xl align-items-center bg-navbar-theme"
+          id="layout-navbar">
+          <div class="layout-menu-toggle navbar-nav align-items-xl-center me-3 me-xl-0 d-xl-none">
+            <a class="nav-item nav-link px-0 me-xl-6" href="javascript:void(0)">
+              <i class="icon-base ti tabler-menu-2 icon-md"></i>
+            </a>
+          </div>
           <span style="margin-right: 10px "><strong>START TIME :</strong></span>
           <div id="start" style="margin-right: 50px ">
             <input type="date" style="margin-right: 0px " id="startdate">
@@ -313,33 +178,32 @@
             </select>
           </div>
         </nav>
-        <div class="content-wrapper">
-          <footer class="content-footer footer bg-footer-theme"></footer>
-          <div class="content-backdrop fade"></div>
+
+        <div class="container-xxl">
+          <div class="content-wrapper">
+            <footer class="content-footer footer bg-footer-theme"></footer>
+            <div class="content-backdrop fade"></div>
+          </div>
         </div>
       </div>
     </div>
-
-    <!-- <div class="layout-overlay layout-menu-toggle"></div> -->
-
-    <!-- <div class="drag-target"></div> -->
   </div>
-  <script src="../../assets/vendor/libs/jquery/jquery.js"></script>
-  <script src="../../assets/vendor/libs/popper/popper.js"></script>
-  <script src="../../assets/vendor/js/bootstrap.js"></script>
-  <script src="../../assets/vendor/libs/node-waves/node-waves.js"></script>
-  <script src="../../assets/vendor/libs/@algolia/autocomplete-js.js"></script>
-  <script src="../../assets/vendor/libs/pickr/pickr.js"></script>
-  <script src="../../assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
-  <script src="../../assets/vendor/libs/hammer/hammer.js"></script>
-  <script src="../../assets/vendor/js/menu.js"></script>
-  <script src="../../assets/vendor/libs/apex-charts/apexcharts.js"></script>
-  <script src="../../assets/js/main.js"></script>
-  <script src="../../assets/js/custom-apps.js"></script>
-  <script src="../../assets/js/custom-virtual-server.js"></script>
-  <script src="../../assets/js/custom-physical-server.js"></script>
-  <script src="../../assets/js/custom-sidebar.js"></script>
-  <script src="../../assets/js/custom-tank.js"></script>
+  <script src="/assets/vendor/libs/jquery/jquery.js"></script>
+  <script src="/assets/vendor/libs/popper/popper.js"></script>
+  <script src="/assets/vendor/js/bootstrap.js"></script>
+  <script src="/assets/vendor/libs/node-waves/node-waves.js"></script>
+  <script src="/assets/vendor/libs/@algolia/autocomplete-js.js"></script>
+  <script src="/assets/vendor/libs/pickr/pickr.js"></script>
+  <script src="/assets/vendor/libs/perfect-scrollbar/perfect-scrollbar.js"></script>
+  <script src="/assets/vendor/libs/hammer/hammer.js"></script>
+  <script src="/assets/vendor/js/menu.js"></script>
+  <script src="/assets/vendor/libs/apex-charts/apexcharts.js"></script>
+  <script src="/assets/js/main.js"></script>
+  <script src="/assets/js/custom-apps.js"></script>
+  <script src="/assets/js/custom-virtual-server.js"></script>
+  <script src="/assets/js/custom-physical-server.js"></script>
+  <script src="/assets/js/custom-sidebar.js"></script>
+  <script src="/assets/js/custom-tank.js"></script>
 </body>
 
 </html>

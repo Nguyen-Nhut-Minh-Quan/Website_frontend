@@ -70,7 +70,7 @@ window.templateName = document.documentElement.getAttribute('data-template');
  * defaultContentLayout: 'compact', 'wide' (compact=container-xxl, wide=container-fluid)
  * defaultHeaderType: 'static', 'fixed' (for horizontal layout only)
  * defaultMenuCollapsed: true, false (For vertical layout only)
- * defaultNavbarType: 'sticky', 'static', 'hidden' (For vertical layout only)
+  defaultNavbarType: 'sticky', 'static', 'hidden' (For vertical layout only)
  * defaultTextDir: 'ltr', 'rtl' (Direction)
  * defaultFooterFixed: true, false (For vertical layout only)
  * defaultShowDropdownOnHover : true, false (for horizontal layout only)
@@ -80,18 +80,12 @@ window.templateName = document.documentElement.getAttribute('data-template');
 if (typeof TemplateCustomizer !== 'undefined') {
   window.templateCustomizer = new TemplateCustomizer({
     displayCustomizer: true,
+    defaultTheme: 'dark',
+    defaultContentLayout: 'wide',
+    defaultSkin : 1,
+    defaultMenuCollapsed: false,
+    defaultNavbarType: `static`,  
     lang: localStorage.getItem('templateCustomizer-' + templateName + '--Lang') || 'en', // Set default language here
-    // defaultPrimaryColor: '#D11BB4',
-    // defaultSkin: 1,
-    // defaultTheme: 'system',
-    // defaultSemiDark: true,
-    // defaultContentLayout: 'wide',
-    // defaultHeaderType: 'static',
-    // defaultMenuCollapsed: true,
-    // defaultNavbarType: 'static',
-    // defaultTextDir: 'rtl',
-    // defaultFooterFixed: false,
-    // defaultShowDropdownOnHover: false,
     controls: [
       'color',
       'theme',

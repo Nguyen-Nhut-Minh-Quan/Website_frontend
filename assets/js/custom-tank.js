@@ -228,8 +228,9 @@ async function loadTankMenu(tankId) {
   }
 
   const content = `
-      <div class="container-xxl flex-grow-1 container-p-y" id="tank-${tankId}-box">
-        <div class="row mb-4" style = "padding-top:0px">
+      <div class="container-xxl flex-grow-1 container-p-y" style="display: flex; flex-direction: column; height: 100vh; padding: 0;" id="tank-${tankId}-box">
+      <div class="top-section" style="flex: 1 1 auto; display: flex; flex-direction: column; min-height: 0;">
+        <div class="row m-0 p-0 g-0">
           <div class="col-8 col-sm-8 col-md-8 col-lg-8 col-xl-8 col-xxl-8" style = 
           "padding :0rem; margin:0rem;"> 
             <div class="card">
@@ -242,7 +243,7 @@ async function loadTankMenu(tankId) {
           </div>
           <div class="col-4 col-sm-4 col-md-4 col-lg-4 col-xl-4 col-xxl-4" style = 
           "padding :0rem; margin:0rem;">
-            <div class="card" style = "height: 150px">
+            <div class="card h-100" style = "height: 150px">
               <div class="card-header">
                 <h5 class="card-title mb-0">Current Layer Temperatures</h5>
               </div>
@@ -261,7 +262,10 @@ async function loadTankMenu(tankId) {
               </div>
             </div>
           </div>
-        <div class="row" id="serversInTankContainer"></div>
+        </div>
+          <div class="scrollable-grid-wrapper" style="flex: 1 1 auto; overflow-y: auto; min-height: 0; height : 100%; width: 100%;">
+            <div class="server-grid" id="serversInTankContainer"></div>
+          </div>
       </div>
     `;
   await $('.content-wrapper').html(content);
@@ -404,43 +408,40 @@ async function populateServersInTankCards(tank) {
     const percent_used = (server.cpu_percent_used).toFixed(2);
     const num_cores = server.logical_cores;
     const cardHtml = `
-        <div class="col-xxl-2 col-xl-2 col-lg-2 col-md-2 col-sm-2 col-2">
-          <div class="card physical-server-card" data-server-id="${server.SERVER_ID}" >
-            <div class="card-header py-1 px-2">
-                <h6 class="mb-0 text-truncate">${server.SERVER_IP}</h6>
-            </div>
-            <div class="card-body">
+          <div class="physical-server-card" data-server-id="${tank}_${server.SERVER_ID}" >
+              <h6 class="mb-0 text-truncate">${server.SERVER_IP}</h6>
               <ul class="list-unstyled mb-0">
-                <li><strong>Temperature: </strong> <span id ="${server.SERVER_ID}_text_CPUtemp" class = "text-usage">${server.temperature}</span></li>
-                <li><strong>CPU:</strong> <span id ="${server.SERVER_ID}_text_CPUUsage">${percent_used}% of ${num_cores} cores</span></li>
-                <li><strong>RAM:</strong> <span id ="${server.SERVER_ID}_text_RamUsage">${ram_used}/${ram_total}</span></li>
-                <li><strong>Disk:</strong> <span id ="${server.SERVER_ID}_text_DiskUsage">${disk_used}/${disk_total}</span></li>
+                <li><strong>Temperature: </strong> <span id ="${tank}_${server.SERVER_ID}_text_CPUtemp" class = "text-usage">${server.temperature}</span></li>
+                <li><strong>CPU:</strong> <span id ="${tank}_${server.SERVER_ID}_text_CPUUsage">${percent_used}% of ${num_cores} cores</span></li>
+                <li><strong>RAM:</strong> <span id ="${tank}_${server.SERVER_ID}_text_RamUsage">${ram_used}/${ram_total}</span></li>
+                <li><strong>Disk:</strong> <span id ="${tank}_${server.SERVER_ID}_text_DiskUsage">${disk_used}/${disk_total}</span></li>
               </ul>
-            </div>
           </div>
       `;
     container.append(cardHtml);
 
-    const temperature_span = document.getElementById(`${server.SERVER_ID}_text_CPUtemp`);
+    const temperature_span = document.getElementById(`${tank}_${server.SERVER_ID}_text_CPUtemp`);
     temperature_span.style.color = getColor(server.temperature);
 
     const cpuUsage = parseFloat(percent_used); // Example: 72.5
-    const cpuSpan = document.getElementById(`${server.SERVER_ID}_text_CPUUsage`);
+    const cpuSpan = document.getElementById(`${tank}_${server.SERVER_ID}_text_CPUUsage`);
     styleUsageText(cpuSpan, cpuUsage);
 
     // Similar for RAM
     const ramPercent = (ram_used / ram_total) * 100;
-    const ramSpan = document.getElementById(`${server.SERVER_ID}_text_RamUsage`);
+    const ramSpan = document.getElementById(`${tank}_${server.SERVER_ID}_text_RamUsage`);
     styleUsageText(ramSpan, ramPercent);
 
     // And Disk
     const diskPercent = (disk_used / disk_total) * 100;
-    const diskSpan = document.getElementById(`${server.SERVER_ID}_text_DiskUsage`);
+    const diskSpan = document.getElementById(`${tank}_${server.SERVER_ID}_text_DiskUsage`);
     styleUsageText(diskSpan, diskPercent);
   };
-  container.find('.physical-server-card').on('click', function () {
+  container.find('.physical-server-card').on('click', async function () {
     const serverId = $(this).data('server-id');
-    loadServerMenu(serverId);
+    await StopUpdateTank();
+    await StopUpdateServerMenu();
+    await loadServerMenu(serverId);
   });
 
 }
